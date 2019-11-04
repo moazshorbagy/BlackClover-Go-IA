@@ -2,7 +2,7 @@
 An intelligent agent that plays the board game Go.
 
 
-## Table of Content
+## Table of Contents
 * [Introduction](#Introduction)
 * [Core](#Core)
 * [GUI](#GUI)
