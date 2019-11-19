@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MIClasses {
-    class ProjectState {
+    public class ProjectState {
         private int Turn;                       //Indicating which Player to play(0 --> Black & 1 --> White). Initially 0.
         private float RemainingTime_0;          //The Remaining Time for Black Player. Initially 900 seconds.
         private float RemainingTime_1;          //The Remaining Time for White Player. Initially 900 seconds.
