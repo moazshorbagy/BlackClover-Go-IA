@@ -29,6 +29,16 @@ namespace MIClasses {
                 }
             }
         }
+        
+        public void SetBoard(int[,] board) {
+            Board = board;
+        }
+        
+        public void SetTurn(int turn){
+            if(turn == 0 || turn == 1){
+                Turn = turn;
+            }
+        }
         public int[,] GetBoard() {
             return Board;
         }
