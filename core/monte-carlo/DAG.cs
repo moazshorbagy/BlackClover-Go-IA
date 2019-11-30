@@ -12,8 +12,8 @@ namespace BlackClover_Go_IA.monte_carlo
         public Node root;
         public int totalNumberOfSimulations;
 
-        /// <summary>Constructs the graph</summary>
-        /// <param name="value">the value of the node</param>
+        /// <summary>Constructs the graph.</summary>
+        /// <param name="state">The state of the node.</param>
         public DAG(State state)
         {
             if (state == null)
@@ -24,8 +24,9 @@ namespace BlackClover_Go_IA.monte_carlo
             totalNumberOfSimulations = 0;
         }
 
-        /// <summary>Traverses and prints the graph in
-        /// Breadth-First Search (BFS) manner</summary>
+        /// <summary>
+        /// Traverses and prints the graph in Breadth-First Search (BFS) manner
+        /// </summary>
         public void TraverseBFS()
         {
             if (this.root == null)
@@ -66,16 +67,16 @@ namespace BlackClover_Go_IA.monte_carlo
         }
 
         /// <summary>
-        /// Determines if the node has any child node
+        /// Determines if the node has any child node.
         /// </summary>
-        /// <returns>true if has any</returns>
+        /// <returns>True if it has any child.</returns>
         public bool hasChildNodes
         {
             get { return this.children.Count != 0; }
         }
 
-        /// <summary>Adds parent to the node</summary>
-        /// <param name="child">the parent to be added</param>
+        /// <summary>Adds parent to the node.</summary>
+        /// <param name="parent">the parent to be added.</param>
         public void AddParent(Node parent)
         {
             if (parent == null)
@@ -100,7 +101,7 @@ namespace BlackClover_Go_IA.monte_carlo
         /// Gets the child of the node at given index.
         /// </summary>
         /// <param name="index">The index of the desired child.</param>
-        /// <returns>The child on the given position</returns>
+        /// <returns>The child on the given position.</returns>
         public Node GetChild(int index)
         {
             if(index >= this.children.Count)
