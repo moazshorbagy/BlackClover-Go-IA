@@ -13,11 +13,57 @@ public class ProjectAction
 
 }
 
+//This function calcutes the Liberty of any stone
+//It takes the board and turn and the position of the stone as inputs and mark is to track visited positions in the board
+static public int GetLiberty(int x, int y, int Turn, int[,] Board, int[,] mark)
+{
+
+    if (mark[x, y] == 1) { return 0; }
+    if (Board[x, y] == -1) { mark[x, y] = 1; return 1; }
+    if (Board[x, y] != Turn) { mark[x, y] = 1; return 0; }
+    mark[x, y] = 1;
+    if (x == 0 && y == 0)
+    {
+        return GetLiberty(x + 1, y, Turn, Board, mark) + GetLiberty(x, y + 1, Turn, Board, mark);
+    }
+    if (x == 18 && y == 0)
+    {
+        return GetLiberty(x - 1, y, Turn, Board, mark) + GetLiberty(x, y + 1, Turn, Board, mark);
+    }
+    if (x == 0 && y == 18)
+    {
+        return GetLiberty(x + 1, y, Turn, Board, mark) + GetLiberty(x, y - 1, Turn, Board, mark);
+    }
+    if (x == 18 && y == 18)
+    {
+        return GetLiberty(x - 1, y, Turn, Board, mark) + GetLiberty(x, y - 1, Turn, Board, mark);
+    }
+    if (x == 0)
+    {
+        return GetLiberty(x + 1, y, Turn, Board, mark) + GetLiberty(x, y + 1, Turn, Board, mark) + GetLiberty(x, y - 1, Turn, Board, mark);
+    }
+    if (x == 18)
+    {
+        return GetLiberty(x - 1, y, Turn, Board, mark) + GetLiberty(x, y + 1, Turn, Board, mark) + GetLiberty(x, y - 1, Turn, Board, mark);
+    }
+    if (y == 0)
+    {
+        return GetLiberty(x + 1, y, Turn, Board, mark) + GetLiberty(x - 1, y, Turn, Board, mark) + GetLiberty(x, y + 1, Turn, Board, mark);
+    }
+    if (y == 18)
+    {
+        return GetLiberty(x + 1, y, Turn, Board, mark) + GetLiberty(x - 1, y, Turn, Board, mark) + GetLiberty(x, y - 1, Turn, Board, mark);
+    }
+    return GetLiberty(x + 1, y, Turn, Board, mark) + GetLiberty(x - 1, y, Turn, Board, mark) + GetLiberty(x, y - 1, Turn, Board, mark) + GetLiberty(x, y + 1, Turn, Board, mark);
+}
+//this function takes a state and returns all possible actions using the getlibrty function 
 static public List<ProjectAction> PossibleActions(ProjectState x)
 {
     var PossibleActions = new List<ProjectAction>();
     string Color;
-    if (x.GetTurn() == 1) Color = "WHITE"; else { Color = "BLACK"; }
+    int OppTurn;
+    int capture = 0;
+    if (x.GetTurn() == 1) { OppTurn = 0; Color = "WHITE"; } else { OppTurn = 1; Color = "BLACK"; }
     int[,] Board2 = new int[19, 19];
     for (int i = 0; i < 19; i++)
     {
@@ -28,9 +74,26 @@ static public List<ProjectAction> PossibleActions(ProjectState x)
             {
                 x.AddStone(i, j);
                 Board2 = new int[19, 19];
-                if (x.GetLiberty(i, j, Board2) == 0)
+
+                if (GetLiberty(i, j, x.GetTurn(), x.GetBoard(), Board2) == 0)
                 {
-                    x.RemoveStone(i, j);
+                    for (int k = 0; k < 19; k++)
+                    {
+                        for (int l = 0; l < 19; l++)
+                        {
+                            if (GetLiberty(k, l, OppTurn, x.GetBoard(), Board2) == 0)
+                            {
+                                capture = 1;
+                                break;
+                            }
+                        }
+                    }
+                    if (capture == 0) x.RemoveStone(i, j);
+                    else
+                    {
+                        x.RemoveStone(i, j);
+                        PossibleActions.Add(new ProjectAction(i, j, Color));
+                    }
                 }
                 else
                 {
