@@ -39,18 +39,24 @@ namespace BlackClover
             return _hasher;
         }
 
+        private int MapPiece(char piece)
+        {
+            return piece == 'W' ? 1 : (piece == 'B' ? 0 : - 1);
+        }
+
         /// <summary>
         /// This function computes the hash where the board 
         /// is a 2d array of <int> 
         /// <summary>
-        public UInt64 ComputeHash(int[,] board)
+        public UInt64 ComputeHash(char[,] board)
         {
             UInt64 hash = 0;
             for (int i = 0; i < BOARD_SIZE; i++)
             {
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
-                    int piece = board[i, j];
+                   int piece = MapPiece(board[i, j]);
+                    
                     if (piece != -1)
                     {
                         hash ^= zobristTable[i, j, piece];
