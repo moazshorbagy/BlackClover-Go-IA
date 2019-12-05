@@ -87,7 +87,7 @@ It returns false if there is no stone at any position in the passed array , Thro
     // Start is called before the first frame update
     void Start()
     {
-    
+        BlackStoneText.text="haaaaaaaaaaaaaaaaaaaaaaaaaaa";
         
             
         
