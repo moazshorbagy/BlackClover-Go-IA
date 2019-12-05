@@ -56,10 +56,12 @@ namespace BlackClover_Go_IA.monte_carlo
         public List<Node> children;
         public int numberOfSimulations;
         public float currentValue;
+        public Action action;
 
-        public Node(State state)
+        public Node(State state, Action action)
         {
-            this.state = state ?? throw new ArgumentNullException("Cannot construct Node with null value!");
+            this.state = state ?? throw new ArgumentNullException("Cannot construct Node with null state value!");
+            this.action = action ?? throw new ArgumentNullException("Cannot construct Node with null action value!");
             parents = new List<Node>();
             children = new List<Node>();
             numberOfSimulations = 0;

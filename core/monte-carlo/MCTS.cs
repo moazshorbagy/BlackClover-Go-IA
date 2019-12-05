@@ -34,38 +34,56 @@ namespace BlackClover_Go_IA.monte_carlo
         {
             int time = 0; // keeps track of number of simulations
 
-            // The first selection is the actual current state of the game
-            Node currentNode = tree.root;
+            Node currentNode;
 
-            while(time < limit)
+            while (time < limit) 
             {
-                if(currentNode.hasChildNodes)
+                currentNode = tree.root; // the first selection is the actual current state of the game
+
+                while (currentNode.hasChildNodes) // if true then it is not a leaf node
                 {
                     // Selection
                     currentNode = Select(currentNode);
-                } else
+                }
+                if (currentNode.numberOfSimulations != 0)
                 {
-                    if (currentNode.numberOfSimulations != 0)
-                    {
-                        // Expansion
-                        Expand(currentNode);
-                        currentNode = currentNode.children[0];
-                    }
-                    // Simulation
-                    int value = Simulate(currentNode);
+                    // Expansion
+                    Expand(currentNode);
+                    currentNode = currentNode.children[0];
+                }
+                // Simulation
+                int value = Simulate(currentNode);
 
-                    // Backpropagation
-                    BackPropagate(currentNode, value);
+                // Backpropagation
+                BackPropagate(currentNode, value);
 
-                    // Selection
-                    currentNode = tree.root;
-                    time++;
+                time++;
+            }
+
+            // Finding the best action after simulation is terminated
+            float maxCurrentValue = tree.root.children[0].currentValue;
+            int index = 0;
+            int secondMaxIndex = 1;
+
+            for (int i = 1; i < tree.root.children.Count; i++)
+            {
+                if(tree.root.children[i].currentValue > maxCurrentValue)
+                {
+                    secondMaxIndex = index;
+                    maxCurrentValue = tree.root.children[i].currentValue;
+                    index = i;
                 }
             }
 
-            tree.root = tree.root.children[0]; // Modify the zero to be the best play after the simulation
-            tree.root.parents.Clear();
-            return new Action(); // Modify this to be the best action after the simulation
+            // Check for KO
+            if (!problem.ValidateAction(tree.root.children[index].state))
+            {
+                index = secondMaxIndex;
+            }
+
+            tree.root = tree.root.children[index]; // modifying the root
+            tree.root.parents.Clear(); // cutting the rest of the tree
+            return tree.root.action;
         }
 
         /// <summary>
@@ -75,7 +93,25 @@ namespace BlackClover_Go_IA.monte_carlo
         /// <remarks>It is responsible for balancing the trade-off between exploration and exploitation.</remarks>
         private Node Select(Node node)
         {
-            return node.children[random.Next()];
+            float maxUCB = CalcUCB(node.children[0]);
+            float currUCB;
+            int index = 0;
+
+            for (int i = 1; i < node.children.Count; i++)
+            {
+                currUCB = CalcUCB(node.children[i]);
+                if(currUCB > maxUCB)
+                {
+                    maxUCB = currUCB;
+                    index = i;
+                }
+            }
+            return node.children[index];
+        }
+
+        private float CalcUCB(Node node)
+        {
+            return node.currentValue / node.numberOfSimulations + (float) (2 * Math.Sqrt(Math.Log(node.parents[0].numberOfSimulations) / node.numberOfSimulations));
         }
 
         /// <summary>
@@ -83,10 +119,13 @@ namespace BlackClover_Go_IA.monte_carlo
         /// </summary>
         private void Expand(Node node)
         {
-            List<State> successors = problem.GetSuccessors(node.state);
-            for (int i = 0; i < successors.Count; i++)
+            List<Action> actions = problem.GetActions(node.state);
+            State successor;
+            for (int i = 0; i < actions.Count; i++)
             {
-                node.AddChild(new Node(successors[i]));
+                successor = problem.GetSuccessor(node.state, actions[i]);
+                node.AddChild(new Node(successor, actions[i]));
+                node.children[i].AddParent(node);
             }
         }
 
