@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MI;
 
 namespace MIClasses
 {
@@ -15,8 +16,8 @@ namespace MIClasses
         private int Prisoners_1;                //No of Prisoners Captured by White Player.
         private float Score_0;                  //Score of Black Player.
         private float Score_1;                  //Score of White Player.
-        private int[,] Board;                   //The Board itself. it's 19 * 19. 0 --> Black Stone, 1 --> White Stone, -1 --> Empty Point
-        public ProjectState(int turn, int Prisoners_0, int Prisoners_1, float RemainingTime_0, float RemainingTime_1, float Score_1, float Score_0, int[,] board)
+        private char[,] Board;                   //The Board itself. it's 19 * 19. 0 --> Black Stone, 1 --> White Stone, -1 --> Empty Point
+        public ProjectState(int turn, int Prisoners_0, int Prisoners_1, float RemainingTime_0, float RemainingTime_1, float Score_1, float Score_0, char[,] board)
         {
             this.Turn = turn;
             this.RemainingTime_0 = RemainingTime_0;
@@ -25,11 +26,11 @@ namespace MIClasses
             this.Prisoners_1 = Prisoners_1;
             this.Score_0 = Score_0;
             this.Score_1 = Score_1;
+            this.Board = new char[19, 19];
             Array.Copy(board, this.Board, 361);
-            this.Board = new int[19, 19];
         }
 
-        public void SetBoard(int[,] board)
+        public void SetBoard(char[,] board)
         {
             Board = board;
         }
@@ -41,17 +42,17 @@ namespace MIClasses
                 Turn = turn;
             }
         }
-        public int[,] GetBoard()
+        public char[,] GetBoard()
         {
             return Board;
         }
         public bool AddStone(int x, int y)
         {
-            if (Board[x, y] != -1)
+            if (Board[x, y] != '\0')
             {
                 return false;
             }
-            Board[x, y] = Turn;
+            Board[x, y] = Turn == 1 ? 'W' : 'B';
             return true;
         }
         public int GetTurn()
@@ -60,9 +61,9 @@ namespace MIClasses
         }
         public void RemoveStone(int x, int y)
         {
-            Board[x, y] = -1;
+            Board[x, y] = '\0';
         }
-        public ProjectState(int turn, int[,] board)
+        public ProjectState(int turn, char[,] board)
         {
             Board = board;
             Turn = turn;
@@ -74,7 +75,7 @@ namespace MIClasses
             {
                 for (int j = 0; j < 19; j++)
                 {
-                    if (Board[i, j] == 0)
+                    if (Board[i, j] == 'B')
                     {
                         c++;
                     }
@@ -89,7 +90,7 @@ namespace MIClasses
             {
                 for (int j = 0; j < 19; j++)
                 {
-                    if (Board[i, j] == 1)
+                    if (Board[i, j] == 'W')
                     {
                         c++;
                     }
@@ -109,75 +110,76 @@ namespace MIClasses
                 RemainingTime_1 -= time;
             }
         }
-        public int GetLiberty(int x, int y, int[,] mark)
+        public int GetLiberty(int x, int y, int[,] mark, char clr, char[,] board)
         {
 
             if (mark[x, y] == 1) { return 0; }
-            if (Board[x, y] == -1) { mark[x, y] = 1; return 1; }
-            if (Board[x, y] != Turn) { mark[x, y] = 1; return 0; }
+            if (board[x, y] == '\0') { mark[x, y] = 1; return 1; }
+            if (board[x, y] != clr) { mark[x, y] = 1; return 0; }
             mark[x, y] = 1;
             if (x == 0 && y == 0)
             {
-                return GetLiberty(x + 1, y, mark) + GetLiberty(x, y + 1, mark);
+                return GetLiberty(x + 1, y, mark, clr, board) + GetLiberty(x, y + 1, mark, clr, board);
             }
             if (x == 18 && y == 0)
             {
-                return GetLiberty(x - 1, y, mark) + GetLiberty(x, y + 1, mark);
+                return GetLiberty(x - 1, y, mark, clr, board) + GetLiberty(x, y + 1, mark, clr, board);
             }
             if (x == 0 && y == 18)
             {
-                return GetLiberty(x + 1, y, mark) + GetLiberty(x, y - 1, mark);
+                return GetLiberty(x + 1, y, mark, clr, board) + GetLiberty(x, y - 1, mark, clr, board);
             }
             if (x == 18 && y == 18)
             {
-                return GetLiberty(x - 1, y, mark) + GetLiberty(x, y - 1, mark);
+                return GetLiberty(x - 1, y, mark, clr, board) + GetLiberty(x, y - 1, mark, clr, board);
             }
             if (x == 0)
             {
-                return GetLiberty(x + 1, y, mark) + GetLiberty(x, y + 1, mark) + GetLiberty(x, y - 1, mark);
+                return GetLiberty(x + 1, y, mark, clr, board) + GetLiberty(x, y + 1, mark, clr, board) + GetLiberty(x, y - 1, mark, clr, board);
             }
             if (x == 18)
             {
-                return GetLiberty(x - 1, y, mark) + GetLiberty(x, y + 1, mark) + GetLiberty(x, y - 1, mark);
+                return GetLiberty(x - 1, y, mark, clr, board) + GetLiberty(x, y + 1, mark, clr, board) + GetLiberty(x, y - 1, mark, clr, board);
             }
             if (y == 0)
             {
-                return GetLiberty(x + 1, y, mark) + GetLiberty(x - 1, y, mark) + GetLiberty(x, y + 1, mark);
+                return GetLiberty(x + 1, y, mark, clr, board) + GetLiberty(x - 1, y, mark, clr, board) + GetLiberty(x, y + 1, mark, clr, board);
             }
             if (y == 18)
             {
-                return GetLiberty(x + 1, y, mark) + GetLiberty(x - 1, y, mark) + GetLiberty(x, y - 1, mark);
+                return GetLiberty(x + 1, y, mark, clr, board) + GetLiberty(x - 1, y, mark, clr, board) + GetLiberty(x, y - 1, mark, clr, board);
             }
-            return GetLiberty(x + 1, y, mark) + GetLiberty(x - 1, y, mark) + GetLiberty(x, y - 1, mark) + GetLiberty(x, y + 1, mark);
+            return GetLiberty(x + 1, y, mark, clr, board) + GetLiberty(x - 1, y, mark, clr, board) + GetLiberty(x, y - 1, mark, clr, board) + GetLiberty(x, y + 1, mark, clr, board);
         }
 
         public static ProjectState GetSuccessor(ProjectState state, ProjectAction action)
         {
             int newTurn = (1 + state.Turn) % 2;
-            float Score_0, Score_1;
-            float RemainingTime_0, RemainingTime_1;
+            //float Score_0, Score_1;
+            //float RemainingTime_0, RemainingTime_1;
             int Prisoners_0 = 0, Prisoners_1 = 0;
-            int[,] board = new int[,];
+            char[,] board = new char[19,19];
 
             int x, y;
-            x = action.getX;
-            y = action.getY;
+            x = action.getX();
+            y = action.getY();
 
             Array.Copy(state.Board, board, 361);
 
             int[,] mark = new int[19, 19];
 
-            state.Board[x, y] = state.turn;
+            board[x, y] = MapPiece(state.Turn);
+            char clr = newTurn == 1 ? 'W' : 'B';
             for (int i = 0; i < 19; i++)
             {
                 for (int j = 0; j < 19; j++)
                 {
-                    if (state.Board[i, j] == state.turn)
+                    if (state.Board[i, j] == clr)
                     {
-                        int liberties = ProjectState.GetLiberty(i, j, mark);
+                        int liberties = state.GetLiberty(i, j, mark, clr, board);
                         if (liberties == 0)
                         {
-                            board[i, j] = -1;
+                            board[i, j] = '\0';
                             if (state.Turn == 1)
                             {
                                 Prisoners_1 += 1;
@@ -190,7 +192,14 @@ namespace MIClasses
                     }
                 }
             }
-            return new ProjectState(newTurn, Prisoners_0, Prisoners_1, 0,0,0,0, board);
+            int[] scores = new int[2];
+            scores = Score.getScore(Prisoners_0, Prisoners_1, board);
+            return new ProjectState(newTurn, Prisoners_0, Prisoners_1, 0,0,scores[0],scores[1], board);
+        }
+
+        public static char MapPiece(int piece)
+        {
+            return piece == 1 ? 'W' : (piece == 0 ? 'B' : '\0');
         }
     }
 }
