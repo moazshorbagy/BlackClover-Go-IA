@@ -158,7 +158,7 @@ namespace MIClasses
             //float Score_0, Score_1;
             //float RemainingTime_0, RemainingTime_1;
             int Prisoners_0 = 0, Prisoners_1 = 0;
-            char[,] board = new char[19,19];
+            char[,] board = new char[19, 19];
 
             int x, y;
             x = action.getX();
@@ -194,7 +194,41 @@ namespace MIClasses
             }
             int[] scores = new int[2];
             scores = Score.getScore(Prisoners_0, Prisoners_1, board);
-            return new ProjectState(newTurn, Prisoners_0, Prisoners_1, 0,0,scores[0],scores[1], board);
+            return new ProjectState(newTurn, Prisoners_0, Prisoners_1, 0, 0, scores[0], scores[1], board);
+        }
+
+        public static List<GUIAction> GetGUIACtions(ProjectState state, ProjectAction action)
+        {
+            int newTurn = (1 + state.Turn) % 2;
+            char[,] board = new char[19, 19];
+            List<GUIAction> guiActions = new List<GUIAction>();
+            int x, y;
+            x = action.getX();
+            y = action.getY();
+
+            Array.Copy(state.Board, board, 361);
+
+            int[,] mark = new int[19, 19];
+
+            board[x, y] = MapPiece(state.Turn);
+            guiActions.Add(new GUIAction(x, y, true, state.Turn));
+            char clr = newTurn == 1 ? 'W' : 'B';
+            for (int i = 0; i < 19; i++)
+            {
+                for (int j = 0; j < 19; j++)
+                {
+                    if (state.Board[i, j] == clr)
+                    {
+                        int liberties = state.GetLiberty(i, j, mark, clr, board);
+                        if (liberties == 0)
+                        {
+                            guiActions.Add(new GUIAction(i, j, false, newTurn));
+                            board[i, j] = '\0';
+                        }
+                    }
+                }
+            }
+            return guiActions;
         }
 
         public static char MapPiece(int piece)
