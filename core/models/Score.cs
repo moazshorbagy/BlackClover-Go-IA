@@ -6,18 +6,18 @@ namespace MI
 {
     public class Score
     {
-        int scoreW = 0;
-        int scoreB = 0;
-        int BlackStones = 0;
-        int WhiteStones = 0;
-        int dir = 0;
-        int[] ScoresArr = new int[2];
-        bool[,] Visited = new bool[19, 19];
-        int territoryCountB = 0;
-        int territoryCountW = 0;
-        public int[] getScore(int prisonersB, int prisonersW, char[,] state)
-        { //prisonersB=how many black stones collected
-          //prisonersW=how many white stones collected 
+        public static int[] getScore(int prisonersB, int prisonersW, char[,] state)
+        {
+            int scoreW = 0, scoreB = 0;
+            int BlackStones = 0;
+            int WhiteStones = 0;
+            int dir = 0;
+            int[] ScoresArr = new int[2];
+            bool[,] Visited = new bool[19, 19];
+            int territoryCountB = 0;
+            int territoryCountW = 0;
+            //prisonersB=how many black stones collected
+            //prisonersW=how many white stones collected 
             scoreW += prisonersB; //score of white stone + black stones prisoners
             scoreB += prisonersW;
             for (int row = 0; row < state.GetLength(0); row++)
