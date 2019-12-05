@@ -9,9 +9,9 @@ namespace BlackClover_Go_IA.monte_carlo
     class MCTS
     {
         private Problem problem;
-        private DAG tree;
-        private int limit;
-        private Random random;
+        private readonly DAG tree;
+        private readonly int limit;
+        private readonly Random random;
 
         /// <summary>
         /// <para>Class representing the Monte Carlo simulation.</para>
@@ -93,13 +93,13 @@ namespace BlackClover_Go_IA.monte_carlo
         /// <remarks>It is responsible for balancing the trade-off between exploration and exploitation.</remarks>
         private Node Select(Node node)
         {
-            float maxUCB = CalcUCB(node.children[0]);
+            float maxUCB = CalculateUCB(node.children[0]);
             float currUCB;
             int index = 0;
 
             for (int i = 1; i < node.children.Count; i++)
             {
-                currUCB = CalcUCB(node.children[i]);
+                currUCB = CalculateUCB(node.children[i]);
                 if(currUCB > maxUCB)
                 {
                     maxUCB = currUCB;
@@ -109,7 +109,11 @@ namespace BlackClover_Go_IA.monte_carlo
             return node.children[index];
         }
 
-        private float CalcUCB(Node node)
+        /// <summary>
+        /// Upper Confidence Bound.
+        /// Maintains balance between the exploitation and exploration.
+        /// </summary>
+        private float CalculateUCB(Node node)
         {
             return node.currentValue / node.numberOfSimulations + (float) (2 * Math.Sqrt(Math.Log(node.parents[0].numberOfSimulations) / node.numberOfSimulations));
         }

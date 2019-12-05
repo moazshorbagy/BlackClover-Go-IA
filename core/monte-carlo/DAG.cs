@@ -58,10 +58,10 @@ namespace BlackClover_Go_IA.monte_carlo
         public float currentValue;
         public Action action;
 
-        public Node(State state, Action action)
+        public Node(State state, Action action = null)
         {
             this.state = state ?? throw new ArgumentNullException("Cannot construct Node with null state value!");
-            this.action = action ?? throw new ArgumentNullException("Cannot construct Node with null action value!");
+            this.action = action; // ?? throw new ArgumentNullException("Cannot construct Node with null action value!");
             parents = new List<Node>();
             children = new List<Node>();
             numberOfSimulations = 0;
@@ -96,7 +96,7 @@ namespace BlackClover_Go_IA.monte_carlo
             {
                 throw new ArgumentNullException("Cannot addChild with null value!");
             }
-            this.children.Add(child);
+            children.Add(child);
         }
 
         /// <summary>
@@ -106,20 +106,11 @@ namespace BlackClover_Go_IA.monte_carlo
         /// <returns>The child on the given position.</returns>
         public Node GetChild(int index)
         {
-            if(index >= this.children.Count)
+            if(index >= children.Count)
             {
                 throw new IndexOutOfRangeException($"Cannot getChild with index {index}!");
             }
-            return this.children[index];
-        }
-
-        /// <summary>
-        /// Upper Confidence Trees.
-        /// Maintains balance between the exploitation and exploration.
-        /// </summary>
-        public float calculateUCT()
-        {
-            return 0F;
+            return children[index];
         }
     }
 
@@ -133,7 +124,7 @@ namespace BlackClover_Go_IA.monte_carlo
             {
                 this.id = id;
                 board = new char[361];
-            } catch (OutOfMemoryException e)
+            } catch
             {
                 Console.WriteLine(id);
                 throw new OutOfMemoryException();
