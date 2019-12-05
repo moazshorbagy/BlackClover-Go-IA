@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MI;
+using testProject.core.models;
 
 namespace MIClasses
 {
@@ -16,7 +17,9 @@ namespace MIClasses
         private int Prisoners_1;                //No of Prisoners Captured by White Player.
         private float Score_0;                  //Score of Black Player.
         private float Score_1;                  //Score of White Player.
-        private char[,] Board;                   //The Board itself. it's 19 * 19. 0 --> Black Stone, 1 --> White Stone, -1 --> Empty Point
+        private char[,] Board;                  //The Board itself. it's 19 * 19. 0 --> Black Stone, 1 --> White Stone, -1 --> Empty Point
+        private int wConsecutivePasses;
+        private int bConsecutivePasses;
         public ProjectState(int turn, int Prisoners_0, int Prisoners_1, float RemainingTime_0, float RemainingTime_1, float Score_1, float Score_0, char[,] board)
         {
             this.Turn = turn;
@@ -158,7 +161,7 @@ namespace MIClasses
             //float Score_0, Score_1;
             //float RemainingTime_0, RemainingTime_1;
             int Prisoners_0 = 0, Prisoners_1 = 0;
-            char[,] board = new char[19, 19];
+            char[,] board = new char[19,19];
 
             int x, y;
             x = action.getX();
@@ -194,10 +197,10 @@ namespace MIClasses
             }
             int[] scores = new int[2];
             scores = Score.getScore(Prisoners_0, Prisoners_1, board);
-            return new ProjectState(newTurn, Prisoners_0, Prisoners_1, 0, 0, scores[0], scores[1], board);
+            return new ProjectState(newTurn, Prisoners_0, Prisoners_1, 0,0,scores[0],scores[1], board);
         }
 
-        public static List<GUIAction> GetGUIACtions(ProjectState state, ProjectAction action)
+        public static List<GUIAction> GetSuccessor(ProjectState state, ProjectAction action, bool getGUIActions)
         {
             int newTurn = (1 + state.Turn) % 2;
             char[,] board = new char[19, 19];
@@ -229,6 +232,22 @@ namespace MIClasses
                 }
             }
             return guiActions;
+        }
+
+        public static List<ProjectState> GetSuccessors(ProjectState state)
+        {
+            List<ProjectAction> possibleActions = ProjectAction.PossibleActions(state);
+            List<ProjectState> successors = new List<ProjectState>();
+            foreach (ProjectAction action in possibleActions)
+            {
+                successors.Add(GetSuccessor(state, action));
+            }
+            return successors;
+        }
+
+        public bool IsTerminal()
+        {
+            return false;
         }
 
         public static char MapPiece(int piece)
