@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MI;
-using testProject.core.models;
 
-namespace MIClasses
+
+namespace BlackClover
 {
-    public class ProjectState
+    public class State
     {
         private int Turn;                       //Indicating which Player to play(0 --> Black & 1 --> White). Initially 0.
         private float RemainingTime_0;          //The Remaining Time for Black Player. Initially 900 seconds.
@@ -20,7 +19,11 @@ namespace MIClasses
         private char[,] Board;                  //The Board itself. it's 19 * 19. 0 --> Black Stone, 1 --> White Stone, -1 --> Empty Point
         private int wConsecutivePasses;
         private int bConsecutivePasses;
-        public ProjectState(int turn, int Prisoners_0, int Prisoners_1, float RemainingTime_0, float RemainingTime_1, float Score_1, float Score_0, char[,] board)
+        public const char b = 'b';
+        public const char w = 'w';
+        public const char _ = '_';
+
+        public State(int turn, int Prisoners_0, int Prisoners_1, float RemainingTime_0, float RemainingTime_1, float Score_1, float Score_0, char[,] board)
         {
             this.Turn = turn;
             this.RemainingTime_0 = RemainingTime_0;
@@ -66,7 +69,7 @@ namespace MIClasses
         {
             Board[x, y] = '\0';
         }
-        public ProjectState(int turn, char[,] board)
+        public State(int turn, char[,] board)
         {
             Board = board;
             Turn = turn;
@@ -155,9 +158,9 @@ namespace MIClasses
             return GetLiberty(x + 1, y, mark, clr, board) + GetLiberty(x - 1, y, mark, clr, board) + GetLiberty(x, y - 1, mark, clr, board) + GetLiberty(x, y + 1, mark, clr, board);
         }
 
-        public static ProjectState GetSuccessor(ProjectState state, ProjectAction action)
+        public State GetSuccessor(Action action)
         {
-            int newTurn = (1 + state.Turn) % 2;
+            int newTurn = (1 + Turn) % 2;
             //float Score_0, Score_1;
             //float RemainingTime_0, RemainingTime_1;
             int Prisoners_0 = 0, Prisoners_1 = 0;
@@ -167,23 +170,23 @@ namespace MIClasses
             x = action.getX();
             y = action.getY();
 
-            Array.Copy(state.Board, board, 361);
+            Array.Copy(Board, board, 361);
 
             int[,] mark = new int[19, 19];
 
-            board[x, y] = MapPiece(state.Turn);
+            board[x, y] = MapPiece(Turn);
             char clr = newTurn == 1 ? 'W' : 'B';
             for (int i = 0; i < 19; i++)
             {
                 for (int j = 0; j < 19; j++)
                 {
-                    if (state.Board[i, j] == clr)
+                    if (Board[i, j] == clr)
                     {
-                        int liberties = state.GetLiberty(i, j, mark, clr, board);
+                        int liberties = GetLiberty(i, j, mark, clr, board);
                         if (liberties == 0)
                         {
                             board[i, j] = '\0';
-                            if (state.Turn == 1)
+                            if (Turn == 1)
                             {
                                 Prisoners_1 += 1;
                             }
@@ -197,10 +200,10 @@ namespace MIClasses
             }
             int[] scores = new int[2];
             scores = Score.getScore(Prisoners_0, Prisoners_1, board);
-            return new ProjectState(newTurn, Prisoners_0, Prisoners_1, 0,0,scores[0],scores[1], board);
+            return new State(newTurn, Prisoners_0, Prisoners_1, 0,0,scores[0],scores[1], board);
         }
 
-        public static List<GUIAction> GetSuccessor(ProjectState state, ProjectAction action, bool getGUIActions)
+        public static List<GUIAction> GetSuccessor(State state, Action action, bool getGUIActions)
         {
             int newTurn = (1 + state.Turn) % 2;
             char[,] board = new char[19, 19];
@@ -234,13 +237,13 @@ namespace MIClasses
             return guiActions;
         }
 
-        public static List<ProjectState> GetSuccessors(ProjectState state)
+        public static List<State> GetSuccessors(State state)
         {
-            List<ProjectAction> possibleActions = ProjectAction.PossibleActions(state);
-            List<ProjectState> successors = new List<ProjectState>();
-            foreach (ProjectAction action in possibleActions)
+            List<Action> possibleActions = Action.PossibleActions(state);
+            List<State> successors = new List<State>();
+            foreach (Action action in possibleActions)
             {
-                successors.Add(GetSuccessor(state, action));
+                successors.Add(state.GetSuccessor(action));
             }
             return successors;
         }
@@ -248,6 +251,11 @@ namespace MIClasses
         public bool IsTerminal()
         {
             return false;
+        }
+
+        public char GetWinner()
+        {
+            return 'B';
         }
 
         public static char MapPiece(int piece)

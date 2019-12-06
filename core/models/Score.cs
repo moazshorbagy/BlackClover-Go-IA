@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MI
+namespace BlackClover
 {
     public class Score
     {
