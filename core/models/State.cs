@@ -248,8 +248,22 @@ namespace BlackClover
             return successors;
         }
 
-        public bool IsTerminal()
+        public bool IsTerminal(State x)
         {
+            int Similar = 1;
+            
+            for (int i = 0; i < 19; i++)
+            {
+                for (int j = 0; j < 19; j++)
+                {
+                    if (x.GetBoard()[i, j] != Board[i, j])
+                    {
+                        Similar = 0;                     
+                    }
+                }
+            }
+            
+            if (Similar == 1 ) { return true; }
             return false;
         }
 
