@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace testProject.core.models
+namespace BlackClover
 {
     public class GUIAction
     {
