@@ -54,6 +54,7 @@ namespace BlackClover
                         int secondpointy = 0;
                         int countp1 = 1;
                         int countp2 = 1;
+
                         List<System.Drawing.Point> temp = new List<System.Drawing.Point>();
                         if (posx + 1 < 19)
                         {
@@ -61,9 +62,9 @@ namespace BlackClover
                             {
                                 pointouter = true;
                                 outer = state[(posx + 1), posy];
-                                if (Visited[(posx + 1), posy] != true)
+                                System.Drawing.Point point = new System.Drawing.Point((posx + 1), posy);
+                                if (!temp.Contains(point))
                                 {
-                                    System.Drawing.Point point = new System.Drawing.Point((posx + 1), posy);
                                     temp.Add(point);
                                 }
                                 secondpointx = posx + 1;
@@ -134,10 +135,10 @@ namespace BlackClover
                                                         countp2++;
                                                     }
                                                 }
-                                                if (Visited[posx, posy + 1] != true)
+                                                System.Drawing.Point point1 = new System.Drawing.Point(posx, posy + 1);
+                                                if (!temp.Contains(point1))
                                                 {
-                                                    System.Drawing.Point point = new System.Drawing.Point(posx, posy + 1);
-                                                    temp.Add(point);
+                                                    temp.Add(point1);
                                                 }
                                                 Visited[posx, posy + 1] = true;
                                                 dir = 1;
@@ -145,9 +146,9 @@ namespace BlackClover
                                         }
                                         else
                                         {
-                                            if (Visited[posx, posy + 1] != true)
+                                            System.Drawing.Point point = new System.Drawing.Point(posx, posy + 1);
+                                            if (!temp.Contains(point))
                                             {
-                                                System.Drawing.Point point = new System.Drawing.Point(posx, posy + 1);
                                                 temp.Add(point);
                                             }
                                             Visited[posx, posy + 1] = true;
@@ -234,9 +235,9 @@ namespace BlackClover
                                                         countp2++;
                                                     }
                                                 }
-                                                if (Visited[posx - 1, posy] != true)
+                                                System.Drawing.Point point = new System.Drawing.Point(posx - 1, posy);
+                                                if (!temp.Contains(point))
                                                 {
-                                                    System.Drawing.Point point = new System.Drawing.Point(posx - 1, posy);
                                                     temp.Add(point);
                                                 }
                                                 Visited[posx - 1, posy] = true;
@@ -258,9 +259,10 @@ namespace BlackClover
                                             }
 
                                             outer = state[posx - 1, posy];
-                                            if (Visited[posx - 1, posy] != true)
+                                            System.Drawing.Point point = new System.Drawing.Point(posx - 1, posy);
+
+                                            if (!temp.Contains(point))
                                             {
-                                                System.Drawing.Point point = new System.Drawing.Point(posx - 1, posy);
                                                 temp.Add(point);
                                             }
                                             Visited[posx - 1, posy] = true;
@@ -335,9 +337,10 @@ namespace BlackClover
                                                         countp2++;
                                                     }
                                                 }
-                                                if (Visited[posx, posy - 1] != true)
+
+                                                System.Drawing.Point point = new System.Drawing.Point(posx, posy - 1);
+                                                if (!temp.Contains(point))
                                                 {
-                                                    System.Drawing.Point point = new System.Drawing.Point(posx, posy - 1);
                                                     temp.Add(point);
                                                 }
                                                 Visited[posx, posy - 1] = true;
@@ -358,9 +361,10 @@ namespace BlackClover
                                                 }
                                             }
                                             outer = state[posx, posy - 1];
-                                            if (Visited[posx, posy - 1] != true)
+                                            System.Drawing.Point point = new System.Drawing.Point(posx, posy - 1);
+
+                                            if (!temp.Contains(point))
                                             {
-                                                System.Drawing.Point point = new System.Drawing.Point(posx, posy - 1);
                                                 temp.Add(point);
                                             }
                                             Visited[posx, posy - 1] = true;
@@ -435,9 +439,10 @@ namespace BlackClover
                                                         countp2++;
                                                     }
                                                 }
-                                                if (Visited[posx + 1, posy] != true)
+                                                System.Drawing.Point point = new System.Drawing.Point(posx + 1, posy);
+
+                                                if (!temp.Contains(point))
                                                 {
-                                                    System.Drawing.Point point = new System.Drawing.Point(posx + 1, posy);
                                                     temp.Add(point);
                                                 }
                                                 Visited[posx + 1, posy] = true;
@@ -458,9 +463,10 @@ namespace BlackClover
                                                 }
                                             }
                                             outer = state[posx + 1, posy];
-                                            if (Visited[posx + 1, posy] != true)
+                                            System.Drawing.Point point = new System.Drawing.Point(posx + 1, posy);
+
+                                            if (!temp.Contains(point))
                                             {
-                                                System.Drawing.Point point = new System.Drawing.Point(posx + 1, posy);
                                                 temp.Add(point);
                                             }
                                             Visited[posx + 1, posy] = true;
@@ -513,13 +519,14 @@ namespace BlackClover
                                 ((countp1 == 1 && territoryCountB == 1 && countp2 == 2)) || (countp1 == 1 && t == 1 && countp2 == 2)))
                             {
                                 System.Drawing.Point point = new System.Drawing.Point(firstpointx, firstpointy);
-
-                                if (outer == 'B')
+                                System.Drawing.Point check1 = new System.Drawing.Point((temp[0].X) - 1, (temp[0].Y) - 1);
+                                System.Drawing.Point check2 = new System.Drawing.Point((temp[0].X) - 1, (temp[0].Y));
+                                if (outer == 'B' && temp.Count >= 4 && ((temp[temp.Count - 1].X == check1.X && temp[temp.Count - 1].Y == check1.Y) || (temp[temp.Count - 1].X == check2.X && temp[temp.Count - 1].Y == check2.Y)))
                                 {
                                     listB.Add(point);
                                     listBBorders.AddRange(temp);
                                 }
-                                else
+                                else if (outer == 'W' && temp.Count >= 4 && ((temp[temp.Count - 1].X == check1.X && temp[temp.Count - 1].Y == check1.Y) || (temp[temp.Count - 1].X == check2.X && temp[temp.Count - 1].Y == check2.Y)))
                                 {
                                     listW.Add(point);
                                     listWBorders.AddRange(temp);
@@ -545,14 +552,17 @@ namespace BlackClover
             scoreB += BlackStones;
 
             mystate = state;
+
             for (int i = 0; i < listB.Count; i++)
             {
                 RegionFillingB(listB[i], '0', '1');
+                Console.WriteLine(listB[i]);
             }
             Console.WriteLine("Black territories");
             Console.WriteLine(Bterritory);
             for (int i = 0; i < listW.Count; i++)
             {
+
                 RegionFillingW(listW[i], '0', '2');
             }
             Console.WriteLine("White territories");
@@ -561,6 +571,14 @@ namespace BlackClover
             scoreB += Bterritory;
             ScoresArr[0] = scoreB;
             ScoresArr[1] = scoreW;
+            for (int i = 0; i < 19; i++)
+            {
+                for (int j = 0; j < 19; j++)
+                {
+                    Console.Write(mystate[i, j]);
+                }
+                Console.WriteLine();
+            }
             return ScoresArr;
         }
 
@@ -571,7 +589,11 @@ namespace BlackClover
 
                 if (mystate[listB.X, listB.Y] != '1' && mystate[listB.X, listB.Y] != fill_color)
                 {
-                    if (mystate[listB.X, listB.Y] == ' ') { Bterritory++; mystate[listB.X, listB.Y] = fill_color; }
+                    if (mystate[listB.X, listB.Y] == ' ')
+                    {
+                        Bterritory++;
+                        mystate[listB.X, listB.Y] = fill_color;
+                    }
 
                     System.Drawing.Point point1 = new System.Drawing.Point(listB.X + 1, listB.Y);
                     System.Drawing.Point point2 = new System.Drawing.Point(listB.X, listB.Y + 1);
@@ -588,6 +610,7 @@ namespace BlackClover
         }
         public void RegionFillingW(System.Drawing.Point listW, char fill_color, char boundarycolor)
         {
+
             if (listW.X < 19 && listW.X >= 0 && listW.Y < 19 && listW.Y >= 0)
             {
                 if (mystate[listW.X, listW.Y] != '2' && mystate[listW.X, listW.Y] != fill_color)
@@ -609,6 +632,4 @@ namespace BlackClover
         }
     }
 }
-
-
 
