@@ -23,8 +23,7 @@ namespace Board
         Dictionary<Vector2, GameObject> SpawnedStones = new Dictionary<Vector2, GameObject>();// hash map that contatins all stones currently available on the board
         List<(int, Vector2)> sharedSpawnStones;
         List<Vector2> sharedRemoveStones;
-        State sharedState = new State(0, new char[19,19]);
-        bool lockAgent;
+        List<State> sharedState;
 
     /*this Function takes an index which indicates which stone to spawn, index is 0 for black stones and 1 for white stones
       it's second parameter is the position to spawn the stone at position should range from 0 to 18 in x and y directions.
@@ -41,7 +40,7 @@ namespace Board
             }
             float XPos=1.2f+(position.x*1.2f);
             float YPos=1.2f+(position.y*1.2f);
-            Vector3 MappedPosition =new Vector3(XPos,0.3f,YPos);
+            Vector3 MappedPosition = new Vector3(XPos,0.3f,YPos);
         
             if(!SpawnedStones.ContainsKey(position))
             {
@@ -71,27 +70,23 @@ namespace Board
             return true;
         }
     /*
-    This Function takes an array of positions to delete the stones present at these locations 
-    It returns true if all stones where deleted successfully
-    It returns false if there is no stone at any position in the passed array , Throwing a KeyNotFoundException
+    This Function takes a position to delete the stone present at these locations 
+    It returns true if the stone at position: position is deleted successfully
+    It returns false if there is no stone at the given position, Throwing a KeyNotFoundException
     */
-        bool RemoveStones(Vector2[] arrayOfPositions)
+        bool RemoveStones(Vector2 position)
         {
-            bool allDeleted =true;
-            foreach(Vector2 position in arrayOfPositions) 
+            bool deleted =true;
+            try
             {
-                try
-                {
-                    SpawnedStones.Remove(position);
-                    Destroy(SpawnedStones[position]);     
-                }
-                catch (KeyNotFoundException e)
-                {
-                    allDeleted=false;  
-                }
+                SpawnedStones.Remove(position);
+                Destroy(SpawnedStones[position]);     
             }
-             return allDeleted;
-
+            catch (KeyNotFoundException e)
+            {
+                deleted = false;  
+            }
+             return deleted;
         }
 
         // Start is called before the first frame update
@@ -99,8 +94,8 @@ namespace Board
         {
             BlackTurn=true;
             AgentvsAgent=false;
-            lockAgent = true;
-            Debug.Log('s');
+            sharedState = new List<State>();
+            sharedState.Add(new State(0, new char[19,19]));
             Thread agentThread = new Thread(new ThreadStart(StartAgent));
             agentThread.Start();
            
@@ -115,9 +110,9 @@ namespace Board
             //BlackClover.Action action = agent.GetNextMove(initialState);
             while(true)
             {
-                if(sharedState.GetTurn() == 1)
+                if(sharedState[0].GetTurn() == 1)
                 {
-                    agent.GetNextMove(sharedState);
+                    agent.GetNextMove(sharedState[0]);
                     Debug.Log("agent waiting for his turn..");
                 }
             }
@@ -138,7 +133,6 @@ namespace Board
 
         void GetUserActions()
         {
-            lockAgent = true;
             if (Input.GetMouseButtonDown(0))
             {
                 Vector3 mousePosition = Input.mousePosition;
@@ -146,23 +140,43 @@ namespace Board
                 Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
         
 
-                int xPos= (int)Math.Round((mouseWorldPosition.x/1.2)-1);
-                int yPos= (int)Math.Round((mouseWorldPosition.z/1.2)-1);
+                int xPos = (int)Math.Round((mouseWorldPosition.x/1.2)-1);
+                int yPos = (int)Math.Round((mouseWorldPosition.z/1.2)-1);
 
         
-                Vector2 spawningPosition = new Vector2 (xPos,yPos);
+                Vector2 spawningPosition = new Vector2(xPos,yPos);
         
-                SpawnStones(0,spawningPosition);
-                BlackClover.Action action = new BlackClover.Action(xPos, yPos, "BLACK");
-                lock(sharedState)
+                //SpawnStones(0,spawningPosition);
+                BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, "BLACK");
+                List<GUIAction> guiActions = State.GetSuccessor(sharedState[0], action, true);
+                lock (sharedState)
                 {
-                    sharedState = sharedState.GetSuccessor(action);
+                    sharedState[0] = sharedState[0].GetSuccessor(action);
+                }
+                foreach (GUIAction guiAction in guiActions)
+                {
+                    if (guiAction.isAddition)
+                    {
+                        lock (sharedSpawnStones)
+                        {
+                            sharedSpawnStones.Add((0, guiAction.position));
+                            Debug.Log("Added stone");
+                        }
+                    }
+                    else
+                    {
+                        lock (sharedRemoveStones)
+                        {
+                            sharedRemoveStones.Add(guiAction.position);
+                            Debug.Log("Removed stone");
+                        }
+                    }
                 }
 
-                if (StoneAdded==true)
+
+                if (StoneAdded)
                 {
                     BlackTurn=false;
-                    lockAgent = false;
                 }
             }
             if (Input.GetKeyDown(KeyCode.P))
@@ -195,21 +209,28 @@ namespace Board
                 //        }
                 //    }
                 //}
-
-                if(sharedState.GetTurn() == 0)
+                GetUserActions();
+                lock (sharedSpawnStones)
                 {
-                    GetUserActions();
-                }
-                else
-                {
-                    lock (sharedSpawnStones)
+                    for (int i = sharedSpawnStones.Count - 1; i >= 0; i--)
                     {
-                        for(int i = sharedSpawnStones.Count - 1; i >= 0; i--)
-                        {
-                            SpawnStones(sharedSpawnStones[i].Item1, sharedSpawnStones[i].Item2);
-                            sharedSpawnStones.RemoveAt(i);
-                            Debug.Log("Added stones to board");
-                        }
+                        Vector2 position = sharedSpawnStones[i].Item2;
+                        position[1] = 18 - position[1];
+                        SpawnStones(sharedSpawnStones[i].Item1, position);
+                        sharedSpawnStones.RemoveAt(i);
+                        Debug.Log("Added stones to board");
+                    }
+                }
+
+                lock(sharedRemoveStones)
+                {
+                    for (int i = sharedRemoveStones.Count - 1; i >= 0; i--)
+                    {
+                        Vector2 position = sharedRemoveStones[i];
+                        position[1] = 18 - position[1];
+                        RemoveStones(position);
+                        sharedRemoveStones.RemoveAt(i);
+                        Debug.Log("Added stones to board");
                     }
                 }
             }
