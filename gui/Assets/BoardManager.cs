@@ -19,12 +19,14 @@ namespace Board
         private bool AgentvsAgent;
         public Text BlackStoneText;
         public Text WhiteStoneText;
+
+        private Score score = new Score();
         public List <GameObject> Stones; // a list containg a white stone and a black stone
         Dictionary<Vector2, GameObject> SpawnedStones = new Dictionary<Vector2, GameObject>();// hash map that contatins all stones currently available on the board
         List<(int, Vector2)> sharedSpawnStones;
         List<Vector2> sharedRemoveStones;
         List<State> sharedState;
-
+        int scoreW, scoreB;
     /*this Function takes an index which indicates which stone to spawn, index is 0 for black stones and 1 for white stones
       it's second parameter is the position to spawn the stone at position should range from 0 to 18 in x and y directions.
     */
@@ -188,9 +190,27 @@ namespace Board
 
 
         }
+
+        void SetBlackScore(int score)
+        {
+            BlackStoneScore=score;
+        }
+
+        void SetWhiteScore(int score)
+        {
+            WhiteStoneScore=score;
+        }
+        void UpdateScores()
+        {
+            BlackStoneText.text= $"Black Score \n {BlackStoneScore}";
+            WhiteStoneText.text= $"White Score \n {WhiteStoneScore}";
+
+        }
     
         void Update()
         {
+            UpdateScores();
+            
             if (AgentvsAgent == false)
             {
                 //if (BlackTurn == true)
@@ -233,6 +253,9 @@ namespace Board
                         Debug.Log("Added stones to board");
                     }
                 }
+                int[] scores = score.getScore(sharedState.GetPrisonersB(), sharedState.GePrisonersW(), sharedState.GetBoard());
+                SetBlackScore(scores[0]);
+                SetWhiteScore(scores[1]) ;
             }
             else
             {
