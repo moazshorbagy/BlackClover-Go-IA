@@ -10,30 +10,28 @@ namespace BlackClover
     public class State
     {
         private int Turn;                       //Indicating which Player to play(0 --> Black & 1 --> White). Initially 0.
-        private float RemainingTime_0;          //The Remaining Time for Black Player. Initially 900 seconds.
-        private float RemainingTime_1;          //The Remaining Time for White Player. Initially 900 seconds.
-        private int Prisoners_0;                //No of Prisoners Captured by Black Player.
-        private int Prisoners_1;                //No of Prisoners Captured by White Player.
-        private float Score_0;                  //Score of Black Player.
-        private float Score_1;                  //Score of White Player.
+        public int Prisoners_0;                //No of Prisoners Captured by Black Player.
+        public int Prisoners_1;                //No of Prisoners Captured by White Player.
         private char[,] Board;                  //The Board itself. it's 19 * 19. 0 --> Black Stone, 1 --> White Stone, -1 --> Empty Point
-        private int wConsecutivePasses;
-        private int bConsecutivePasses;
-        public const char b = 'b';
-        public const char w = 'w';
-        public const char _ = '_';
+        private int consecutivePasses;
 
-        public State(int turn, int Prisoners_0, int Prisoners_1, float RemainingTime_0, float RemainingTime_1, float Score_1, float Score_0, char[,] board)
+        public State(int turn, char[,] board)
         {
-            this.Turn = turn;
-            this.RemainingTime_0 = RemainingTime_0;
-            this.RemainingTime_1 = RemainingTime_1;
+            Board = board;
+            Turn = turn;
+            consecutivePasses = 0;
+            Prisoners_0 = 0;
+            Prisoners_1 = 0;
+        }
+
+        public State(int turn, int Prisoners_0, int Prisoners_1, int consecutivePasses, char[,] board)
+        {
+            Turn = turn;
             this.Prisoners_0 = Prisoners_0;
             this.Prisoners_1 = Prisoners_1;
-            this.Score_0 = Score_0;
-            this.Score_1 = Score_1;
-            this.Board = new char[19, 19];
-            Array.Copy(board, this.Board, 361);
+            this.consecutivePasses = consecutivePasses;
+            Board = new char[19, 19];
+            Array.Copy(board, Board, 361);
         }
 
         public void SetBoard(char[,] board)
@@ -69,11 +67,7 @@ namespace BlackClover
         {
             Board[x, y] = '\0';
         }
-        public State(int turn, char[,] board)
-        {
-            Board = board;
-            Turn = turn;
-        }
+
         public int BlackStones()
         {
             int c = 0;
@@ -105,17 +99,6 @@ namespace BlackClover
             return c;
         }
 
-        public void DecrementTime(int Player, float time)
-        {
-            if (Player == 0)
-            {
-                RemainingTime_0 -= time;
-            }
-            if (Player == 1)
-            {
-                RemainingTime_1 -= time;
-            }
-        }
         public int GetLiberty(int x, int y, int[,] mark, char clr, char[,] board)
         {
 
@@ -161,8 +144,6 @@ namespace BlackClover
         public State GetSuccessor(Action action)
         {
             int newTurn = (1 + Turn) % 2;
-            //float Score_0, Score_1;
-            //float RemainingTime_0, RemainingTime_1;
             int Prisoners_0 = 0, Prisoners_1 = 0;
             char[,] board = new char[19,19];
 
@@ -198,9 +179,14 @@ namespace BlackClover
                     }
                 }
             }
-            int[] scores = new int[2];
-            scores = Score.getScore(Prisoners_0, Prisoners_1, board);
-            return new State(newTurn, Prisoners_0, Prisoners_1, 0,0,scores[0],scores[1], board);
+
+            int passes = 0;
+            if(action.getY() == -1 && action.getX() == -1)
+            {
+                passes = consecutivePasses + 1;
+            }
+
+            return new State(newTurn, Prisoners_0, Prisoners_1, passes, board);
         }
 
         public static List<GUIAction> GetSuccessor(State state, Action action, bool getGUIActions)
@@ -237,33 +223,12 @@ namespace BlackClover
             return guiActions;
         }
 
-        public static List<State> GetSuccessors(State state)
+        public bool IsTerminal()
         {
-            List<Action> possibleActions = Action.PossibleActions(state);
-            List<State> successors = new List<State>();
-            foreach (Action action in possibleActions)
+            if(consecutivePasses > 1 || Action.PossibleActions(this).Count == 0)
             {
-                successors.Add(state.GetSuccessor(action));
+                return true;
             }
-            return successors;
-        }
-
-        public bool IsTerminal(State x)
-        {
-            int Similar = 1;
-            
-            for (int i = 0; i < 19; i++)
-            {
-                for (int j = 0; j < 19; j++)
-                {
-                    if (x.GetBoard()[i, j] != Board[i, j])
-                    {
-                        Similar = 0;                     
-                    }
-                }
-            }
-            
-            if (Similar == 1 ) { return true; }
             return false;
         }
 
