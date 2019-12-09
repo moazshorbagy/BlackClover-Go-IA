@@ -23,8 +23,8 @@ namespace BlackClover
         {
             this.initialState = initialState;
             tree = new DAG(this.initialState);
-            limit = 16;
-            depthLimit = 16;
+            limit = 1000;
+            depthLimit = 100;
             random = new Random();
         }
 
@@ -82,6 +82,11 @@ namespace BlackClover
             {
                 index = secondMaxIndex;
             }*/
+            Console.WriteLine("Tree nodes count = {0}", tree.TraverseBFS());
+            for (int i = 0; i < tree.root.children.Count; i++)
+            {
+                Console.WriteLine("# sim = {0}, value = {1}", tree.root.children[i].numberOfSimulations, tree.root.children[i].currentValue);
+            }
 
             tree.root = tree.root.children[index]; // modifying the root
             tree.root.parents.Clear(); // cutting the rest of the tree
@@ -99,8 +104,12 @@ namespace BlackClover
             float currUCB;
             int index = 0;
 
-            for (int i = 1; i < node.children.Count; i++)
+            for (int i = 0; i < node.children.Count; i++)
             {
+                if(node.children[i].numberOfSimulations == 0)
+                {
+                    return node.children[i];
+                }
                 currUCB = CalculateUCB(node.children[i]);
                 if(currUCB > maxUCB)
                 {
@@ -151,7 +160,7 @@ namespace BlackClover
                 actions = Action.PossibleActions(state);
                 state = state.GetSuccessor(actions[random.Next(actions.Count)]);
             }
-            return 0;//problem.GetWinner(state);
+            return random.Next(2); //problem.GetWinner(state);
         }
 
         /// <summary>
@@ -161,6 +170,12 @@ namespace BlackClover
         private void BackPropagate(Node node, int value)
         {
             tree.totalNumberOfSimulations += 1;
+            if(node == tree.root)
+            {
+                node.numberOfSimulations++;
+                node.currentValue += value;
+                return;
+            }
             while (node != tree.root)
             {
                 node.numberOfSimulations++;

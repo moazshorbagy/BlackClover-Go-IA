@@ -27,25 +27,28 @@ namespace BlackClover
         /// <summary>
         /// Traverses and prints the graph in Breadth-First Search (BFS) manner
         /// </summary>
-        public void TraverseBFS()
+        public int TraverseBFS()
         {
-            if (this.root == null)
+            if (root == null)
             {
-                return;
+                return 0;
             }
+            int count = 0;
             Queue<Node> nodes = new Queue<Node>();
             Node tempNode;
 
-            nodes.Enqueue(this.root);
+            nodes.Enqueue(root);
             while(nodes.Count != 0)
             {
+                count++;
                 tempNode = nodes.Dequeue();
-                //Console.WriteLine(tempNode.state.id);
+                // Console.WriteLine(tempNode.state);
                 for (int i = 0; i < tempNode.children.Count; i++)
                 {
                     nodes.Enqueue(tempNode.children[i]);
                 }
             }
+            return count;
         }
     }
 
