@@ -59,6 +59,15 @@ namespace BlackClover
             Board[x, y] = Turn == 1 ? 'W' : 'B';
             return true;
         }
+
+        public int GetPrisonersW()
+        {
+            return Prisoners_1;
+        }
+        public int GetPrisonersB()
+        {
+            return Prisoners_1;
+        }
         public int GetTurn()
         {
             return Turn;
