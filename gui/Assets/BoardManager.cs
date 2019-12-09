@@ -79,8 +79,8 @@ namespace Board
             bool deleted =true;
             try
             {
+                Destroy(SpawnedStones[position]);
                 SpawnedStones.Remove(position);
-                Destroy(SpawnedStones[position]);     
             }
             catch (KeyNotFoundException e)
             {
@@ -145,8 +145,8 @@ namespace Board
 
         
                 Vector2 spawningPosition = new Vector2(xPos,yPos);
-        
-                //SpawnStones(0,spawningPosition);
+
+                SpawnStones(0, spawningPosition);
                 BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, "BLACK");
                 List<GUIAction> guiActions = State.GetSuccessor(sharedState[0], action, true);
                 lock (sharedState)
@@ -155,15 +155,7 @@ namespace Board
                 }
                 foreach (GUIAction guiAction in guiActions)
                 {
-                    if (guiAction.isAddition)
-                    {
-                        lock (sharedSpawnStones)
-                        {
-                            sharedSpawnStones.Add((0, guiAction.position));
-                            Debug.Log("Added stone");
-                        }
-                    }
-                    else
+                    if(!guiAction.isAddition)
                     {
                         lock (sharedRemoveStones)
                         {
@@ -172,8 +164,6 @@ namespace Board
                         }
                     }
                 }
-
-
                 if (StoneAdded)
                 {
                     BlackTurn=false;
@@ -209,7 +199,10 @@ namespace Board
                 //        }
                 //    }
                 //}
-                GetUserActions();
+                if(sharedState[0].GetTurn() == 0)
+                {
+                    GetUserActions();
+                }
                 lock (sharedSpawnStones)
                 {
                     for (int i = sharedSpawnStones.Count - 1; i >= 0; i--)
