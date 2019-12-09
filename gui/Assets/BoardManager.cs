@@ -13,6 +13,9 @@ public class BoardManager : MonoBehaviour
     private const int NumberOfTiles=19;
     private int BlackStoneScore=0;
     private int WhiteStoneScore=0;
+    private bool BlackTurn;
+    private  bool StoneAdded=false;
+    private bool AgentvsAgent;
     public Text BlackStoneText;
     public Text WhiteStoneText;
     public List <GameObject> Stones; // a list containg a white stone and a black stone
@@ -23,26 +26,31 @@ public class BoardManager : MonoBehaviour
 */
     void SpawnStones(int index,Vector2 position)
     {
+       
 
         if(CheckInBounds(position)==false)
         {
             Debug.Log("This position is out of bounds! " );
-            return;
+            StoneAdded=false;
+             return;
         }
         float XPos=1.2f+(position.x*1.2f);
         float YPos=1.2f+(position.y*1.2f);
         Vector3 MappedPosition =new Vector3(XPos,0.3f,YPos);
+        
+        if(!SpawnedStones.ContainsKey(position))
+        {
         GameObject Stone = Instantiate(Stones[index],MappedPosition,Quaternion.identity)as GameObject;
         Stone.transform.Rotate(90.0f, 0.0f, 0.0f, Space.Self);
         Stone.transform.SetParent(transform);
-        try
-        {
             SpawnedStones.Add(position,Stone);
+            StoneAdded=true;
 
         }
-        catch(ArgumentException e)
+        else
         {
             Debug.Log("This position is already taken!" );
+             StoneAdded=false;
 
         }
         
@@ -87,10 +95,19 @@ It returns false if there is no stone at any position in the passed array , Thro
     // Start is called before the first frame update
     void Start()
     {
-        BlackStoneText.text="haaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        BlackTurn=true;
+        AgentvsAgent=false;
+        //BlackStoneText.text="haaaaaaaaaaaaaaaaaaaaaaaaaaa";
         
             
         
+    }
+    Vector2 GenerateRandomPosition()
+    {
+        System.Random random = new System.Random();  
+       Vector2 Position =new Vector2(random.Next(0, 18),random.Next(0, 18));   
+       
+       return Position; 
     }
 
     /*
@@ -98,8 +115,12 @@ It returns false if there is no stone at any position in the passed array , Thro
     It also passes his turn if The keyboard button "P" was pressed
     */
 
+
     void GetUserActions()
     {
+        
+        if (Input.GetMouseButtonDown(0))
+        {
         Vector3 mousePosition = Input.mousePosition;
         mousePosition.z = 10;
         Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
@@ -110,21 +131,45 @@ It returns false if there is no stone at any position in the passed array , Thro
 
         
         Vector2 spawningPosition=new Vector2 (xPos,yPos);
-        if (Input.GetMouseButtonDown(0))
+        
+        SpawnStones(0,spawningPosition);
+        if (StoneAdded==true)
         {
-            SpawnStones(0,spawningPosition);
+        BlackTurn=false;
+
+        }
         }
         if (Input.GetKeyDown(KeyCode.P))
         {
+             BlackTurn=false; 
              Debug.Log("Your Turn is passed " );
         }   
+        
 
 
     }
     
     void Update()
     {
-        GetUserActions();
+        if (AgentvsAgent==false)
+        {
+        if (BlackTurn==true )
+        {
+            GetUserActions();
+        }
+        if (BlackTurn==false )
+        {
+            SpawnStones(1,GenerateRandomPosition());
+            BlackTurn=true;
+            
+        }
+        }
+        else
+        {
+             SpawnStones(0,GenerateRandomPosition());
+              SpawnStones(1,GenerateRandomPosition());
+            
+        }
         
 
         
