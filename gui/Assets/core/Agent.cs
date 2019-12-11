@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace BlackClover
@@ -21,13 +20,12 @@ namespace BlackClover
         public void GetNextMove(State state)
         {
             MCTS search = new MCTS(state);
-            Debug.Log("is everything okay?");
             Action action = search.Play();
-            List<GUIAction> guiActions = State.GetSuccessor(state, action, true);
+            List<GUIAction> guiActions;
             lock(this.sharedState)
             {
-                sharedState[0] = state.GetSuccessor(action);
-                Debug.Log("changed shared state");
+                (guiActions, sharedState[0]) = state.GetSuccessor(action);
+             
             }
             foreach(GUIAction guiAction in guiActions)
             {
@@ -36,7 +34,7 @@ namespace BlackClover
                     lock(this.sharedSpawnStones)
                     {
                         sharedSpawnStones.Add((this.turn, guiAction.position));
-                        Debug.Log("Added stone");
+                        Debug.Log("Added stone at (" + guiAction.position.x + ", " + guiAction.position.y + ")");
                     }
                 }
                 else

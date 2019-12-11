@@ -23,7 +23,7 @@ namespace BlackClover
         {
             this.initialState = initialState;
             tree = new DAG(this.initialState);
-            limit = 500;
+            limit = 100;
             depthLimit = 20;
             random = new Random();
         }
@@ -136,9 +136,10 @@ namespace BlackClover
         {
             List<Action> actions = Action.PossibleActions(node.state);
             State successor;
+            List<GUIAction> _;
             for (int i = 0; i < actions.Count; i++)
             {
-                successor = node.state.GetSuccessor(actions[i]);
+                (_, successor) = node.state.GetSuccessor(actions[i]);
                 node.AddChild(new Node(successor, actions[i]));
                 node.children[i].AddParent(node);
             }
@@ -153,12 +154,13 @@ namespace BlackClover
         {
             State state = node.state;
             List<Action> actions;
+            List<GUIAction> _;
             int count = 0;
             while (count < depthLimit)  // use IsTerminal
             {
                 count++;
                 actions = Action.PossibleActions(state);
-                state = state.GetSuccessor(actions[random.Next(actions.Count)]);
+                (_, state) = state.GetSuccessor(actions[random.Next(actions.Count)]);
             }
             return random.Next(2); //problem.GetWinner(state);
         }

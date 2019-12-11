@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using UnityEngine;
 
 namespace BlackClover
 {
@@ -108,13 +105,13 @@ namespace BlackClover
             return c;
         }
 
-        public int GetLiberty(int x, int y, int[,] mark, char clr, char[,] board)
+        public int GetLiberty(int x, int y, bool[,] mark, char clr, char[,] board)
         {
 
-            if (mark[x, y] == 1) { return 0; }
-            if (board[x, y] == '\0') { mark[x, y] = 1; return 1; }
-            if (board[x, y] != clr) { mark[x, y] = 1; return 0; }
-            mark[x, y] = 1;
+            if (mark[x, y] == true) { return 0; }
+            if (board[x, y] == '\0') { mark[x, y] =true; return 1; }
+            if (board[x, y] != clr) { mark[x, y] = true; return 0; }
+            mark[x, y] = true;
             if (x == 0 && y == 0)
             {
                 return GetLiberty(x + 1, y, mark, clr, board) + GetLiberty(x, y + 1, mark, clr, board);
@@ -150,7 +147,7 @@ namespace BlackClover
             return GetLiberty(x + 1, y, mark, clr, board) + GetLiberty(x - 1, y, mark, clr, board) + GetLiberty(x, y - 1, mark, clr, board) + GetLiberty(x, y + 1, mark, clr, board);
         }
 
-        public State GetSuccessor(Action action)
+        public (List<GUIAction>, State) GetSuccessor(Action action)
         {
             int newTurn = (1 + Turn) % 2;
             int Prisoners_0 = 0, Prisoners_1 = 0;
@@ -161,10 +158,10 @@ namespace BlackClover
             y = action.getY();
 
             Array.Copy(Board, board, 361);
-
-            int[,] mark = new int[19, 19];
-
+            List<GUIAction> guiActions = new List<GUIAction>();
+            guiActions.Add(new GUIAction(x, y, true, Turn));
             board[x, y] = MapPiece(Turn);
+            Board[x, y] = MapPiece(Turn);
             char clr = newTurn == 1 ? 'W' : 'B';
             for (int i = 0; i < 19; i++)
             {
@@ -172,9 +169,11 @@ namespace BlackClover
                 {
                     if (Board[i, j] == clr)
                     {
-                        int liberties = GetLiberty(i, j, mark, clr, board);
+                        bool[,] mark = new bool[19, 19];
+                        int liberties = GetLiberty(i, j, mark, clr, Board);
                         if (liberties == 0)
                         {
+                            guiActions.Add(new GUIAction(i, j, false, newTurn));
                             board[i, j] = '\0';
                             if (Turn == 1)
                             {
@@ -195,41 +194,7 @@ namespace BlackClover
                 passes = consecutivePasses + 1;
             }
 
-            return new State(newTurn, Prisoners_0, Prisoners_1, passes, board);
-        }
-
-        public static List<GUIAction> GetSuccessor(State state, Action action, bool getGUIActions)
-        {
-            int newTurn = (1 + state.Turn) % 2;
-            char[,] board = new char[19, 19];
-            List<GUIAction> guiActions = new List<GUIAction>();
-            int x, y;
-            x = action.getX();
-            y = action.getY();
-
-            Array.Copy(state.Board, board, 361);
-
-            int[,] mark = new int[19, 19];
-
-            board[x, y] = MapPiece(state.Turn);
-            guiActions.Add(new GUIAction(x, y, true, state.Turn));
-            char clr = newTurn == 1 ? 'W' : 'B';
-            for (int i = 0; i < 19; i++)
-            {
-                for (int j = 0; j < 19; j++)
-                {
-                    if (state.Board[i, j] == clr)
-                    {
-                        int liberties = state.GetLiberty(i, j, mark, clr, board);
-                        if (liberties == 0)
-                        {
-                            guiActions.Add(new GUIAction(i, j, false, newTurn));
-                            board[i, j] = '\0';
-                        }
-                    }
-                }
-            }
-            return guiActions;
+            return (guiActions, new State(newTurn, Prisoners_0, Prisoners_1, passes, board));
         }
 
         public bool IsTerminal()

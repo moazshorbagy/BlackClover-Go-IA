@@ -20,13 +20,12 @@ namespace Board
         public Text BlackStoneText;
         public Text WhiteStoneText;
 
-        private Score score = new Score();
+        //private Score score = new Score();
         public List <GameObject> Stones; // a list containg a white stone and a black stone
         Dictionary<Vector2, GameObject> SpawnedStones = new Dictionary<Vector2, GameObject>();// hash map that contatins all stones currently available on the board
         List<(int, Vector2)> sharedSpawnStones;
         List<Vector2> sharedRemoveStones;
         List<State> sharedState;
-        int scoreW, scoreB;
     /*this Function takes an index which indicates which stone to spawn, index is 0 for black stones and 1 for white stones
       it's second parameter is the position to spawn the stone at position should range from 0 to 18 in x and y directions.
     */
@@ -109,13 +108,18 @@ namespace Board
             sharedSpawnStones = new List<(int, Vector2)>();
             sharedRemoveStones = new List<Vector2>();
             BlackCloverAgent agent = new BlackCloverAgent(sharedSpawnStones, sharedRemoveStones, sharedState, 1);
-            //BlackClover.Action action = agent.GetNextMove(initialState);
             while(true)
             {
                 if(sharedState[0].GetTurn() == 1)
                 {
                     agent.GetNextMove(sharedState[0]);
                     Debug.Log("agent waiting for his turn..");
+                    Score score = new Score();
+                    char[,] boardcopy = new char[19, 19];
+                    Array.Copy(sharedState[0].GetBoard(), boardcopy, 361);
+                    int[] scores = score.getScore(sharedState[0].GetPrisonersB(), sharedState[0].GetPrisonersW(), boardcopy);
+                    SetBlackScore(scores[0]);
+                    SetWhiteScore(scores[1]);
                 }
             }
         }
@@ -150,10 +154,10 @@ namespace Board
 
                 SpawnStones(0, spawningPosition);
                 BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, "BLACK");
-                List<GUIAction> guiActions = State.GetSuccessor(sharedState[0], action, true);
+                List<GUIAction> guiActions;
                 lock (sharedState)
                 {
-                    sharedState[0] = sharedState[0].GetSuccessor(action);
+                    (guiActions, sharedState[0]) = sharedState[0].GetSuccessor(action);
                 }
                 foreach (GUIAction guiAction in guiActions)
                 {
@@ -169,6 +173,12 @@ namespace Board
                 if (StoneAdded)
                 {
                     BlackTurn=false;
+                    Score score = new Score();
+                    char[,] boardcopy = new char[19, 19];
+                    Array.Copy(sharedState[0].GetBoard(), boardcopy, 361);
+                    int[] scores = score.getScore(sharedState[0].GetPrisonersB(), sharedState[0].GetPrisonersW(), boardcopy);
+                    SetBlackScore(scores[0]);
+                    SetWhiteScore(scores[1]);
                 }
             }
             if (Input.GetKeyDown(KeyCode.P))
@@ -231,7 +241,7 @@ namespace Board
                         position[1] = 18 - position[1];
                         SpawnStones(sharedSpawnStones[i].Item1, position);
                         sharedSpawnStones.RemoveAt(i);
-                        Debug.Log("Added stones to board");
+                        Debug.Log("Added stone to board");
                     }
                 }
 
@@ -243,12 +253,9 @@ namespace Board
                         position[1] = 18 - position[1];
                         RemoveStones(position);
                         sharedRemoveStones.RemoveAt(i);
-                        Debug.Log("Added stones to board");
+                        Debug.Log("removed stone from board");
                     }
                 }
-                int[] scores = score.getScore(sharedState.GetPrisonersB(), sharedState.GePrisonersW(), sharedState.GetBoard());
-                SetBlackScore(scores[0]);
-                SetWhiteScore(scores[1]) ;
             }
             else
             {

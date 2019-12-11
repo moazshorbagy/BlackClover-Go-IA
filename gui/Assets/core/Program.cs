@@ -26,7 +26,7 @@ namespace BlackClover
             
             Console.WriteLine("Decision taken is ({0}, {1})", a.getX(), a.getY());
 
-            state = state.GetSuccessor(a); // Getting the new state after making the decision
+            //state = state.GetSuccessor(a); // Getting the new state after making the decision
         }
 
         static void Print(State state)
