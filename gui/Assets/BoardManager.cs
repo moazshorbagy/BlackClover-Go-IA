@@ -96,8 +96,10 @@ namespace Board
             BlackTurn=true;
             AgentvsAgent=false;
             sharedState = new List<State>();
+            sharedSpawnStones = new List<(int, Vector2)>();
+            sharedRemoveStones = new List<Vector2>();
             sharedState.Add(new State(0, new char[19,19]));
-            Thread agentThread = new Thread(new ThreadStart(StartAgent));
+            Thread agentThread = new Thread(new ThreadStart(startDummyGame));
             agentThread.Start();
            
         }
@@ -121,6 +123,46 @@ namespace Board
                     SetBlackScore(scores[0]);
                     SetWhiteScore(scores[1]);
                 }
+            }
+        }
+
+        void startDummyGame()
+        {
+            char[,] board = new char[19, 19];
+            State state = new State(0, board);
+            int sleepDuration = 2000;
+            System.Random random = new System.Random();
+            List<BlackClover.Action> actions = BlackClover.Action.PossibleActions(state);
+            List<GUIAction> a;
+            for (int i = 0; i < 250; i++)
+            {
+                Console.WriteLine(actions.Count);
+                (a, state) = state.GetSuccessor(actions[random.Next(actions.Count)]);
+                lock(sharedSpawnStones)
+                {
+                    foreach(GUIAction action in a)
+                    {
+                        if (action.isAddition)
+                        { 
+                            sharedSpawnStones.Add((state.GetTurn(), action.position));
+                        }
+                    }
+                }
+                lock(sharedRemoveStones)
+                {
+                    foreach (GUIAction action in a)
+                    {
+                        if (!action.isAddition)
+                        {
+                            sharedRemoveStones.Add(action.position);
+                        }
+                    }
+                }
+                Console.WriteLine(state.GetTurn());
+                actions = BlackClover.Action.PossibleActions(state);
+                Console.WriteLine(actions[0].getColor());
+                Thread.Sleep(Math.Max(150, sleepDuration));
+                sleepDuration -= 100;
             }
         }
 
@@ -213,26 +255,10 @@ namespace Board
             
             if (AgentvsAgent == false)
             {
-                //if (BlackTurn == true)
+                //if(sharedState[0].GetTurn() == 0)
                 //{
                 //    GetUserActions();
                 //}
-                //if (BlackTurn == false)
-                //{
-                //    lock(sharedSpawnStones)
-                //    {
-                //        foreach ((int, Vector2) add in sharedSpawnStones)
-                //        {
-                //            Debug.Log("Added stones to board");
-                //            SpawnStones(add.Item1, add.Item2);
-                //            sharedSpawnStones.Remove(add);
-                //        }
-                //    }
-                //}
-                if(sharedState[0].GetTurn() == 0)
-                {
-                    GetUserActions();
-                }
                 lock (sharedSpawnStones)
                 {
                     for (int i = sharedSpawnStones.Count - 1; i >= 0; i--)
@@ -245,7 +271,7 @@ namespace Board
                     }
                 }
 
-                lock(sharedRemoveStones)
+                lock (sharedRemoveStones)
                 {
                     for (int i = sharedRemoveStones.Count - 1; i >= 0; i--)
                     {
