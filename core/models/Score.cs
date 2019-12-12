@@ -26,7 +26,8 @@ namespace BlackClover
         public int[] getScore(int prisonersB, int prisonersW, char[,] state)
         { //prisonersB=how many black stones collected
           //prisonersW=how many white stones collected 
-
+            scoreW = 0;
+            scoreB = 0;
             scoreW += prisonersB; //score of white stone + black stones prisoners
             scoreB += prisonersW;
 
