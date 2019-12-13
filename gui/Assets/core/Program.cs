@@ -24,7 +24,7 @@ namespace BlackClover
             stopwatch.Stop();
             Console.WriteLine("Time taken = {0}ms", stopwatch.ElapsedMilliseconds);
             
-            Console.WriteLine("Decision taken is ({0}, {1})", a.getX(), a.getY());
+            Console.WriteLine("Decision taken is ({0}, {1})", a.GetX(), a.GetY());
 
             //state = state.GetSuccessor(a); // Getting the new state after making the decision
         }

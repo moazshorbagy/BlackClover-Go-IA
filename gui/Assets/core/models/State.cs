@@ -57,13 +57,13 @@ namespace BlackClover
         {
             return Board;
         }
-        public bool AddStone(int x, int y)
+        public bool AddStone(int x, int y, char clr)
         {
             if (Board[x, y] != '\0')
             {
                 return false;
             }
-            Board[x, y] = Turn == 1 ? 'W' : 'B';
+            Board[x, y] = clr;
             return true;
         }
 
@@ -73,7 +73,7 @@ namespace BlackClover
         }
         public int GetPrisonersB()
         {
-            return Prisoners_1;
+            return Prisoners_0;
         }
         public int GetTurn()
         {
@@ -160,12 +160,12 @@ namespace BlackClover
         public (List<GUIAction>, State) GetSuccessor(Action action)
         {
             int newTurn = (1 + Turn) % 2;
-            int prisoners0 = 0, prisoners1 = 0;
+            int prisoners0 = this.GetPrisonersB(), prisoners1 = this.GetPrisonersW();
             char[,] board = new char[19,19];
 
             int x, y;
-            x = action.getX();
-            y = action.getY();
+            x = action.GetX();
+            y = action.GetY();
 
             Array.Copy(Board, board, 361);
             List<GUIAction> guiActions = new List<GUIAction>();
@@ -199,7 +199,7 @@ namespace BlackClover
             }
 
             int passes = 0;
-            if(action.getY() == -1 && action.getX() == -1)
+            if(action.GetY() == -1 && action.GetX() == -1)
             {
                 passes = consecutivePasses + 1;
             }

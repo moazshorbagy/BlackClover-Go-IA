@@ -234,11 +234,11 @@ namespace BlackClover
                            * ****************
                         */
 
-                        string opcolor;
+                        char opcolor;
                         if (mycolor == "B")
-                            opcolor = "W";
+                            opcolor = 'W';
                         else
-                            opcolor = "B";
+                            opcolor = 'B';
                         opaction = new Action(-1, -1, opcolor);
                         sharedOpAction.Add(opaction);
                         string recievemovpass =  "{\"type\":\"MOVE\",\"move\": {\"type\":\"pass\"} }";
@@ -269,11 +269,11 @@ namespace BlackClover
                             opmovrow = pointobj["row"].ToString();
                             opmovcol = pointobj["column"].ToString();
 
-                            string opcolor;
+                            char opcolor;
                             if (mycolor == "B")
-                                opcolor = "W";
+                                opcolor = 'W';
                             else
-                                opcolor = "B";
+                                opcolor = 'B';
                             opaction =new Action(Int32.Parse(opmovrow), Int32.Parse(opmovcol), opcolor);
                             sharedOpAction.Add(opaction);
                             string recievemovplace = "{\"type\":\"MOVE\",\"move\": {\"type\":\"place\",\"point\":{\"row\":" + opmovrow + ",\"column\":"+ opmovcol +"}}} }";
