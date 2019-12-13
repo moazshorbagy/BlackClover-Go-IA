@@ -12,6 +12,16 @@ namespace BlackClover
         private char[,] Board;                  //The Board itself. it's 19 * 19. 0 --> Black Stone, 1 --> White Stone, -1 --> Empty Point
         private int consecutivePasses;
 
+        public State(State s)
+        {
+            this.Board = new char[19,19];
+            Array.Copy(s.Board, this.Board, 361);
+            this.Turn = s.Turn;
+            this.consecutivePasses = s.consecutivePasses;
+            this.Prisoners_0 = s.Prisoners_0;
+            this.Prisoners_1 = s.Prisoners_1;
+        }
+
         public State(int turn, char[,] board)
         {
             Board = board;
@@ -150,7 +160,7 @@ namespace BlackClover
         public (List<GUIAction>, State) GetSuccessor(Action action)
         {
             int newTurn = (1 + Turn) % 2;
-            int Prisoners_0 = 0, Prisoners_1 = 0;
+            int prisoners0 = 0, prisoners1 = 0;
             char[,] board = new char[19,19];
 
             int x, y;
@@ -177,11 +187,11 @@ namespace BlackClover
                             board[i, j] = '\0';
                             if (Turn == 1)
                             {
-                                Prisoners_1 += 1;
+                                prisoners1 += 1;
                             }
                             else
                             {
-                                Prisoners_0 += 1;
+                                prisoners0 += 1;
                             }
                         }
                     }
@@ -194,7 +204,7 @@ namespace BlackClover
                 passes = consecutivePasses + 1;
             }
 
-            return (guiActions, new State(newTurn, Prisoners_0, Prisoners_1, passes, board));
+            return (guiActions, new State(newTurn, prisoners0, prisoners1, passes, board));
         }
 
         public bool IsTerminal()
