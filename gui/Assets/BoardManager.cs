@@ -139,6 +139,12 @@ namespace Board
 
         void GetUserActions()
         {
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                BlackTurn = false;
+                Debug.Log("Your Turn is passed ");
+            }
+
             if (Input.GetMouseButtonDown(0))
             {
                 Vector3 mousePosition = Input.mousePosition;
@@ -149,30 +155,36 @@ namespace Board
                 int xPos = (int)Math.Round((mouseWorldPosition.x/1.2)-1);
                 int yPos = (int)Math.Round((mouseWorldPosition.z/1.2)-1);
 
-        
+            
                 Vector2 spawningPosition = new Vector2(xPos,yPos);
 
+                BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, 'B');
+                if (BlackClover.Action.PossibleActions(sharedState[0]).Contains(action))
+                {
+                    return;
+                }
+
                 SpawnStones(0, spawningPosition);
-                BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, "BLACK");
-                List<GUIAction> guiActions;
-                lock (sharedState)
-                {
-                    (guiActions, sharedState[0]) = sharedState[0].GetSuccessor(action);
-                }
-                foreach (GUIAction guiAction in guiActions)
-                {
-                    if(!guiAction.isAddition)
-                    {
-                        lock (sharedRemoveStones)
-                        {
-                            sharedRemoveStones.Add(guiAction.position);
-                            Debug.Log("Removed stone");
-                        }
-                    }
-                }
                 if (StoneAdded)
                 {
-                    BlackTurn=false;
+                    //BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, 'B');
+                    List<GUIAction> guiActions;
+                    lock (sharedState)
+                    {
+                        (guiActions, sharedState[0]) = sharedState[0].GetSuccessor(action);
+                    }
+                    foreach (GUIAction guiAction in guiActions)
+                    {
+                        if (!guiAction.isAddition)
+                        {
+                            lock (sharedRemoveStones)
+                            {
+                                sharedRemoveStones.Add(guiAction.position);
+                                Debug.Log("Removed stone");
+                            }
+                        }
+                    }
+                    BlackTurn =false;
                     Score score = new Score();
                     char[,] boardcopy = new char[19, 19];
                     Array.Copy(sharedState[0].GetBoard(), boardcopy, 361);
@@ -181,11 +193,7 @@ namespace Board
                     SetWhiteScore(scores[1]);
                 }
             }
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                 BlackTurn=false; 
-                 Debug.Log("Your Turn is passed " );
-            }   
+             
         
 
 

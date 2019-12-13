@@ -21,10 +21,10 @@ namespace BlackClover
         /// <param name="initialState">The initial state of the game.</param>
         public MCTS(State initialState)
         {
-            this.initialState = initialState;
+            this.initialState = new State(initialState);
             tree = new DAG(this.initialState);
             limit = 100;
-            depthLimit = 20;
+            depthLimit = 10;
             random = new Random();
         }
 

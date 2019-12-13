@@ -28,8 +28,8 @@ namespace BlackClover
           //prisonersW=how many white stones collected 
             scoreW = 0;
             scoreB = 0;
-            scoreW += prisonersB; //score of white stone + black stones prisoners
-            scoreB += prisonersW;
+            scoreW += prisonersW; //score of white stone + black stones prisoners
+            scoreB += prisonersB;
 
             for (int row = 0; row < state.GetLength(0); row++)
             {
