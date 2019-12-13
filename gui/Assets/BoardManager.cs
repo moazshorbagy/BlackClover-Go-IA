@@ -100,16 +100,16 @@ namespace Board
             sharedSpawnStones = new List<(int, Vector2)>();
             sharedRemoveStones = new List<Vector2>();
             char[,] board = new char[19,19];
-            //for (int i = 0; i < 7; i++)
-            //{
-            //    board[i, 0] = 'B';
-            //    board[i, 2] = 'B';
-            //    SpawnStones(0, new Vector2(i, 18 - 0));
-            //    SpawnStones(0, new Vector2(i, 18 - 2));
-            //    board[i, 1] = 'W';
-            //    SpawnStones(1, new Vector2(i, 18 - 1));
+            for (int i = 0; i < 7; i++)
+            {
+                board[i, 0] = 'B';
+                board[i, 2] = 'B';
+                SpawnStones(0, new Vector2(i, 18 - 0));
+                SpawnStones(0, new Vector2(i, 18 - 2));
+                board[i, 1] = 'W';
+                SpawnStones(1, new Vector2(i, 18 - 1));
 
-            //}
+            }
             sharedState.Add(new State(0, board));
             Thread agentThread = new Thread(new ThreadStart(StartAgent));
             agentThread.Start();
@@ -173,10 +173,10 @@ namespace Board
                 
                 List<BlackClover.Action> possibleActions = BlackClover.Action.PossibleActions(sharedState[0]);
 
-                //if (possibleActions.FindIndex(((x) => { return x.GetX() == action.GetX() && x.GetY() == x.GetY(); }) ) == -1)
-                //{
-                //    return;
-                //}
+                if (possibleActions.FindIndex(((x) => { return x.GetX() == action.GetX() && x.GetY() == x.GetY(); })) == -1)
+                {
+                    return;
+                }
 
                 SpawnStones(0, spawningPosition);
                 if (StoneAdded)
