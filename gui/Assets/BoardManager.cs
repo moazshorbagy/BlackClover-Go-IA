@@ -26,6 +26,7 @@ namespace Board
         List<(int, Vector2)> sharedSpawnStones;
         List<Vector2> sharedRemoveStones;
         List<State> sharedState;
+        List<BlackClover.Action> opAction;
     /*this Function takes an index which indicates which stone to spawn, index is 0 for black stones and 1 for white stones
       it's second parameter is the position to spawn the stone at position should range from 0 to 18 in x and y directions.
     */
@@ -96,23 +97,33 @@ namespace Board
             BlackTurn=true;
             AgentvsAgent=false;
             sharedState = new List<State>();
-            sharedState.Add(new State(0, new char[19,19]));
+            sharedSpawnStones = new List<(int, Vector2)>();
+            sharedRemoveStones = new List<Vector2>();
+            char[,] board = new char[19,19];
+            //for (int i = 0; i < 7; i++)
+            //{
+            //    board[i, 0] = 'B';
+            //    board[i, 2] = 'B';
+            //    SpawnStones(0, new Vector2(i, 18 - 0));
+            //    SpawnStones(0, new Vector2(i, 18 - 2));
+            //    board[i, 1] = 'W';
+            //    SpawnStones(1, new Vector2(i, 18 - 1));
+
+            //}
+            sharedState.Add(new State(0, board));
             Thread agentThread = new Thread(new ThreadStart(StartAgent));
             agentThread.Start();
-           
         }
 
         void StartAgent()
         {
-            
-            sharedSpawnStones = new List<(int, Vector2)>();
-            sharedRemoveStones = new List<Vector2>();
+           
             BlackCloverAgent agent = new BlackCloverAgent(sharedSpawnStones, sharedRemoveStones, sharedState, 1);
             while(true)
             {
                 if(sharedState[0].GetTurn() == 1)
                 {
-                    agent.GetNextMove(sharedState[0]);
+                    agent.GetNextMove();
                     Debug.Log("agent waiting for his turn..");
                     Score score = new Score();
                     char[,] boardcopy = new char[19, 19];
@@ -161,10 +172,11 @@ namespace Board
                 BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, 'B');
                 
                 List<BlackClover.Action> possibleActions = BlackClover.Action.PossibleActions(sharedState[0]);
-                if (possibleActions.FindIndex(((x) => { return x.GetX() == action.GetX() && x.GetY() == x.GetY(); }) ) == -1)
-                {
-                    return;
-                }
+
+                //if (possibleActions.FindIndex(((x) => { return x.GetX() == action.GetX() && x.GetY() == x.GetY(); }) ) == -1)
+                //{
+                //    return;
+                //}
 
                 SpawnStones(0, spawningPosition);
                 if (StoneAdded)
@@ -175,6 +187,7 @@ namespace Board
                     {
                         (guiActions, sharedState[0]) = sharedState[0].GetSuccessor(action);
                     }
+
                     foreach (GUIAction guiAction in guiActions)
                     {
                         if (!guiAction.isAddition)
