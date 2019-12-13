@@ -20,10 +20,10 @@ namespace BlackClover
         static public List<Action> PossibleActions(State x)
         {
             var possibleActions = new List<Action>();
-            int OppTurn = x.GetTurn() == 1 ? 0 : 1;
+            int turn = x.GetTurn();
             bool[,] mark;
             char [,] stateBoard = x.GetBoard();
-            char oppClr = OppTurn == 1 ? 'W' : 'B';
+            char clr = turn == 1 ? 'W' : 'B';
             int libterties;
 
             for(int i = 0; i < 19; i++)
@@ -33,11 +33,11 @@ namespace BlackClover
                     if (stateBoard[i,j] == '\0')
                     { 
                         mark = new bool[19,19];
-                        x.AddStone(i,j, oppClr);
-                        libterties = x.GetLiberty(i,j, mark, oppClr, stateBoard);
+                        x.AddStone(i,j, clr);
+                        libterties = x.GetLiberty(i,j, mark, clr, stateBoard);
                         if (libterties != 0)
                         {
-                            possibleActions.Add(new Action(i, j, oppClr));
+                            possibleActions.Add(new Action(i, j, clr));
                         }
                         x.RemoveStone(i,j);
                     }
