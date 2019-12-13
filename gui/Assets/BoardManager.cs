@@ -159,7 +159,9 @@ namespace Board
                 Vector2 spawningPosition = new Vector2(xPos,yPos);
 
                 BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, 'B');
-                if (BlackClover.Action.PossibleActions(sharedState[0]).Contains(action))
+                
+                List<BlackClover.Action> possibleActions = BlackClover.Action.PossibleActions(sharedState[0]);
+                if (possibleActions.FindIndex(((x) => { return x.GetX() == action.GetX() && x.GetY() == x.GetY(); }) ) == -1)
                 {
                     return;
                 }
