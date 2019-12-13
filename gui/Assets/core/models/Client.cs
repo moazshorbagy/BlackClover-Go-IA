@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace BlackClover
 {
@@ -19,8 +20,8 @@ namespace BlackClover
         private string myname = "\"yasminaa\"";
         string opmovrow;
         string opmovcol;
-        string mymovrow;
-        string mymovcol;
+        int mymovrow;
+        int mymovcol;
         bool myturn;
         string turnnow;
         string mycolor;
@@ -39,21 +40,26 @@ namespace BlackClover
         //char[,] board = { { ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."} };
         //char[,] board;
         char[,] board = { { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' } };
-        int turn = 0; //set initially as black, changes from turnnow
+       
         State gamestate = new State(0, new char[,] { { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' } }); 
-        Action opaction;
-        List<Action> sharedOpAction = new List<Action>(); //to be replaced with shared action list
-        List<Action> sharedMyAction;
         
-        List<char> myColor;
+        List<Action> OpAction; //to be replaced with shared action list
+        List<String> myColor;
+        List<Action> myAction;
+        List<bool> turn;
 
         ClientState state = ClientState.INIT;
 
-        public Client(List<char> myColor)
+      public  Client(List<String> myColor, List<Action> OpAction, List<Action> myAction, List<bool> turn)
         {
             this.myColor = myColor;
+            this.myAction = myAction;
+            this.OpAction = OpAction;
+            this.turn = turn;
+
+
         }
-        
+
         enum ClientState
         {
             INIT,
@@ -90,8 +96,50 @@ namespace BlackClover
         }
 
 
+        (int, int) GetMyAction()
+        {
+            lock (this.turn)
+            {
+                this.turn.Add(true);
+            }
 
-        private void OnMessageHandler(object sender, MessageEventArgs e)
+            Action action;
+            while (this.myAction.Count == 0)
+            {
+             
+            }
+            lock (this.myAction)
+            {
+                action = this.myAction[0];
+                this.myAction.RemoveAt(0);
+
+            }
+
+            int x, y;
+            return (action.GetX(), action.GetY());
+        }
+
+        void SetOpAction(int X, int Y, string c)
+        {
+            lock (this.turn)
+            {
+                this.turn.Add(true);
+            }
+
+            Action action;
+            
+            lock (this.OpAction)
+            {
+                action = new Action(X, Y, char.Parse(c));
+                this.OpAction.Add(action);
+
+            }
+
+            
+        }
+
+
+        private void OnMessageHandlerAsync(object sender, MessageEventArgs e)
         {
             if (e.IsText)
             {
@@ -162,7 +210,7 @@ namespace BlackClover
                 }
                 else if (string.Compare(o["type"].ToString(), "START") == 0)
                 {
-
+                    //Thread.Sleep(20000);
 
 
                     if (state == ClientState.READY)
@@ -202,7 +250,7 @@ namespace BlackClover
 
                         lock (this.myColor)
                         {
-                            this.myColor.Add(Char.Parse(mycolor)); 
+                            this.myColor.Add(mycolor); 
                         }
 
                         if (movloglength % 2 == 0)//even 
@@ -211,6 +259,17 @@ namespace BlackClover
                             {
                                 myturn = true;
                                 state = ClientState.THINKING;
+
+                                
+
+                                ( mymovrow,mymovcol) = GetMyAction();
+
+                                if (mymovcol == -1 && mymovrow == -1)
+                                {
+                                    ws.SendAsync(sendmovpass, OnSendComplete);
+                                }
+                                else
+                                { ws.SendAsync(sendmovplace, OnSendComplete); }
 
                                 /* 
                                    ******************
@@ -232,9 +291,20 @@ namespace BlackClover
                         else //odd
                         {
                             if (string.Compare(turnnow, mycolor) != 0)
-                            {
+                            { 
                                 myturn = true;
                                 state = ClientState.THINKING;
+                                (mymovrow, mymovcol) = GetMyAction();
+
+                                if (mymovcol == -1 && mymovrow == -1)
+                                {
+                                    ws.SendAsync(sendmovpass, OnSendComplete);
+                                }
+                                else
+                                { ws.SendAsync(sendmovplace, OnSendComplete); }
+
+
+
                             }
                             else
                             {
@@ -279,9 +349,7 @@ namespace BlackClover
                         */
                         //
 
-                        opaction = new Action(-1, -1, opcolor);
-                        sharedOpAction.Add(opaction);
-                        
+                        SetOpAction(-1, -1, opcolor);
                     }
 
                     else if (string.Compare(movobj["type"].ToString(), "resign") == 0)
@@ -295,8 +363,7 @@ namespace BlackClover
                     else if (string.Compare(movobj["type"].ToString(), "place") == 0)
                     {
 
-                        if (string.Compare(movobj["type"].ToString(), "place") == 0)
-                        {   /* 
+                        /* 
                            ******************
                            * NOTIFY THE AGENT THAT THE OPPNENT MADE A PLACE MOVE
                            * ****************
@@ -308,20 +375,23 @@ namespace BlackClover
                             opmovrow = pointobj["row"].ToString();
                             opmovcol = pointobj["column"].ToString();
 
-                            
-                            
-                            opaction =new Action(Int32.Parse(opmovrow), Int32.Parse(opmovcol), opcolor);
-                            
-                            
-                        }
+                            SetOpAction(Int32.Parse(opmovrow), Int32.Parse(opmovcol), opcolor);
+
 
 
 
                     }
 
-                    
 
 
+                    (mymovrow, mymovcol) = GetMyAction();
+
+                    if (mymovcol == -1 && mymovrow == -1)
+                    {
+                        ws.SendAsync(sendmovpass, OnSendComplete);
+                    }
+                    else
+                    { ws.SendAsync(sendmovplace, OnSendComplete); }
 
 
 
@@ -369,7 +439,7 @@ namespace BlackClover
             
             ws.EmitOnPing = true;
             ws.OnOpen += OnOpenHandler;
-            ws.OnMessage += OnMessageHandler;
+            ws.OnMessage += OnMessageHandlerAsync;
             ws.OnError += OnErrorHandler;
             ws.OnClose += OnCloseHandler;
 
