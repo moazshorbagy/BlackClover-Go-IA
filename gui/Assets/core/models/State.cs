@@ -207,9 +207,8 @@ namespace BlackClover
             {
                 passes = consecutivePasses + 1;
             }
-
-            return (guiActions, new State(newTurn, prisoners0, prisoners1, passes, board));
             Board[x, y] = '\0';
+            return (guiActions, new State(newTurn, prisoners0, prisoners1, passes, board));
         }
 
         public bool IsTerminal()
