@@ -76,6 +76,7 @@ namespace BlackClover
                                     territoryCountB++;
                                 Visited[posx, posy] = true;
                                 Visited[posx + 1, posy] = true;
+                                t = 1;
                                 dir = 0;
                             }
                             else
@@ -532,6 +533,19 @@ namespace BlackClover
                                     listW.Add(point);
                                     listWBorders.AddRange(temp);
                                 }
+                                else if (firstpointx == 0 || firstpointy == 0 || firstpointx == 18 || firstpointy == 18)
+                                {
+                                    if (outer == 'B')
+                                    {
+                                        listB.Add(point);
+                                        listBBorders.AddRange(temp);
+                                    }
+                                    if (outer == 'W')
+                                    {
+                                        listW.Add(point);
+                                        listWBorders.AddRange(temp);
+                                    }
+                                }
                             }
                         }
                         territoryCountB = 0;
@@ -539,46 +553,60 @@ namespace BlackClover
                     }
                 }
             }
-
-            for (int i = 0; i < listBBorders.Count; i++)
+            if (WhiteStones != 0 && BlackStones != 0)
             {
-                state[listBBorders[i].X, listBBorders[i].Y] = '1';
-            }
-
-            for (int i = 0; i < listWBorders.Count; i++)
-            {
-                state[listWBorders[i].X, listWBorders[i].Y] = '2';
-            }
-            scoreW += WhiteStones;
-            scoreB += BlackStones;
-
-            mystate = state;
-
-            for (int i = 0; i < listB.Count; i++)
-            {
-                RegionFillingB(listB[i], '0', '1');
-                Console.WriteLine(listB[i]);
-            }
-            Console.WriteLine("Black territories");
-            Console.WriteLine(Bterritory);
-            for (int i = 0; i < listW.Count; i++)
-            {
-
-                RegionFillingW(listW[i], '0', '2');
-            }
-            Console.WriteLine("White territories");
-            Console.WriteLine(Wterritory);
-            scoreW += Wterritory;
-            scoreB += Bterritory;
-            ScoresArr[0] = scoreB;
-            ScoresArr[1] = scoreW;
-            for (int i = 0; i < 19; i++)
-            {
-                for (int j = 0; j < 19; j++)
+                for (int i = 0; i < listBBorders.Count; i++)
                 {
-                    Console.Write(mystate[i, j]);
+                    state[listBBorders[i].X, listBBorders[i].Y] = '1';
                 }
-                Console.WriteLine();
+
+                for (int i = 0; i < listWBorders.Count; i++)
+                {
+                    state[listWBorders[i].X, listWBorders[i].Y] = '2';
+                }
+                scoreW += WhiteStones;
+                scoreB += BlackStones;
+
+                mystate = state;
+
+                for (int i = 0; i < listB.Count; i++)
+                {
+                    RegionFillingB(listB[i], '0', '1');
+
+                }
+                Console.WriteLine("Black territories");
+                Console.WriteLine(Bterritory);
+                for (int i = 0; i < listW.Count; i++)
+                {
+
+                    RegionFillingW(listW[i], '0', '2');
+                }
+                Console.WriteLine("White territories");
+                Console.WriteLine(Wterritory);
+                scoreW += Wterritory;
+                scoreB += Bterritory;
+                ScoresArr[0] = scoreB;
+                ScoresArr[1] = scoreW;
+                for (int i = 0; i < 19; i++)
+                {
+                    for (int j = 0; j < 19; j++)
+                    {
+                        Console.Write(mystate[i, j]);
+                    }
+                    Console.WriteLine();
+                }
+            }
+            else if (BlackStones == 0)
+            {
+                scoreW += 361;
+                ScoresArr[0] = scoreB;
+                ScoresArr[1] = scoreW;
+            }
+            else if (WhiteStones == 0)
+            {
+                scoreB += 361;
+                ScoresArr[0] = scoreB;
+                ScoresArr[1] = scoreW;
             }
             return ScoresArr;
         }
