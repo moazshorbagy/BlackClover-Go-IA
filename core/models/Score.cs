@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BlackClover
+namespace MI
 {
     public class Score
     {
@@ -568,25 +568,6 @@ namespace BlackClover
                 scoreB += BlackStones;
 
                 mystate = state;
-
-                for (int i = 0; i < listB.Count; i++)
-                {
-                    RegionFillingB(listB[i], '0', '1');
-
-                }
-                Console.WriteLine("Black territories");
-                Console.WriteLine(Bterritory);
-                for (int i = 0; i < listW.Count; i++)
-                {
-
-                    RegionFillingW(listW[i], '0', '2');
-                }
-                Console.WriteLine("White territories");
-                Console.WriteLine(Wterritory);
-                scoreW += Wterritory;
-                scoreB += Bterritory;
-                ScoresArr[0] = scoreB;
-                ScoresArr[1] = scoreW;
                 for (int i = 0; i < 19; i++)
                 {
                     for (int j = 0; j < 19; j++)
@@ -595,6 +576,28 @@ namespace BlackClover
                     }
                     Console.WriteLine();
                 }
+
+                for (int i = 0; i < listB.Count; i++)
+                {
+                    RegionFillingB(listB[i], '0', '1');
+
+                }
+                Console.WriteLine("Black territories");
+                Console.WriteLine(Bterritory);
+
+                Console.WriteLine(listW.Count);
+                for (int i = 0; i < listW.Count; i++)
+                {
+                    Console.WriteLine(listW[i]);
+                    RegionFillingW(listW[i], '0', '2');
+                }
+                Console.WriteLine("White territories");
+                Console.WriteLine(Wterritory);
+                scoreW += Wterritory;
+                scoreB += Bterritory;
+                ScoresArr[0] = scoreB;
+                ScoresArr[1] = scoreW;
+
             }
             else if (BlackStones == 0)
             {
@@ -616,14 +619,17 @@ namespace BlackClover
             if (listB.X < 19 && listB.X >= 0 && listB.Y < 19 && listB.Y >= 0)
             {
 
-                if (mystate[listB.X, listB.Y] != '1' && mystate[listB.X, listB.Y] != fill_color)
+                if (mystate[listB.X, listB.Y] != '1' && mystate[listB.X, listB.Y] != fill_color && mystate[listB.X, listB.Y] != 'W')
                 {
                     if (mystate[listB.X, listB.Y] == ' ')
                     {
                         Bterritory++;
                         mystate[listB.X, listB.Y] = fill_color;
                     }
-
+                    if (mystate[listB.X, listB.Y] == 'B')
+                    {
+                        mystate[listB.X, listB.Y] = fill_color;
+                    }
                     System.Drawing.Point point1 = new System.Drawing.Point(listB.X + 1, listB.Y);
                     System.Drawing.Point point2 = new System.Drawing.Point(listB.X, listB.Y + 1);
                     System.Drawing.Point point3 = new System.Drawing.Point(listB.X - 1, listB.Y);
@@ -639,18 +645,18 @@ namespace BlackClover
         }
         public void RegionFillingW(System.Drawing.Point listW, char fill_color, char boundarycolor)
         {
-
             if (listW.X < 19 && listW.X >= 0 && listW.Y < 19 && listW.Y >= 0)
             {
                 if (mystate[listW.X, listW.Y] != '2' && mystate[listW.X, listW.Y] != fill_color)
                 {
                     if (mystate[listW.X, listW.Y] == ' ') { Wterritory++; mystate[listW.X, listW.Y] = fill_color; }
-
+                    if (mystate[listW.X, listW.Y] == 'W') { mystate[listW.X, listW.Y] = fill_color; }
+                    if (mystate[listW.X, listW.Y] == 'B') { Wterritory = 0; return; }
                     System.Drawing.Point point1 = new System.Drawing.Point(listW.X + 1, listW.Y);
                     System.Drawing.Point point2 = new System.Drawing.Point(listW.X, listW.Y + 1);
                     System.Drawing.Point point3 = new System.Drawing.Point(listW.X - 1, listW.Y);
                     System.Drawing.Point point4 = new System.Drawing.Point(listW.X, listW.Y - 1);
-                    if (mystate[listW.X, listW.Y] == 'B') { Wterritory = 0; return; }
+
 
                     RegionFillingW(point1, fill_color, '1');
                     RegionFillingW(point2, fill_color, '1');
