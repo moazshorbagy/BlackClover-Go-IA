@@ -12,16 +12,6 @@ namespace BlackClover
         private char[,] Board;                  //The Board itself. it's 19 * 19. 0 --> Black Stone, 1 --> White Stone, -1 --> Empty Point
         private int consecutivePasses;
 
-        public State(State s)
-        {
-            this.Board = new char[19,19];
-            Array.Copy(s.Board, this.Board, 361);
-            this.Turn = s.Turn;
-            this.consecutivePasses = s.consecutivePasses;
-            this.Prisoners_0 = s.Prisoners_0;
-            this.Prisoners_1 = s.Prisoners_1;
-        }
-
         public State(int turn, char[,] board)
         {
             Board = board;
@@ -41,6 +31,20 @@ namespace BlackClover
             Array.Copy(board, Board, 361);
         }
 
+        public void Print()
+        {
+            Console.WriteLine("State:");
+            for (int i = 0; i < 19; i++)
+            {
+                for (int j = 0; j < 19; j++)
+                {
+                    char x = Board[i, j] != '\0' ? Board[i, j] : '.';
+                    Console.Write("{0} ", x);
+                }
+                Console.WriteLine();
+            }
+        }
+
         public void SetBoard(char[,] board)
         {
             Board = board;
@@ -57,13 +61,13 @@ namespace BlackClover
         {
             return Board;
         }
-        public bool AddStone(int x, int y)
+        public bool AddStone(int x, int y, char clr)
         {
             if (Board[x, y] != '\0')
             {
                 return false;
             }
-            Board[x, y] = Turn == 1 ? 'W' : 'B';
+            Board[x, y] = clr;
             return true;
         }
 
@@ -73,7 +77,7 @@ namespace BlackClover
         }
         public int GetPrisonersB()
         {
-            return Prisoners_1;
+            return Prisoners_0;
         }
         public int GetTurn()
         {
@@ -119,7 +123,7 @@ namespace BlackClover
         {
 
             if (mark[x, y] == true) { return 0; }
-            if (board[x, y] == '\0') { mark[x, y] =true; return 1; }
+            if (board[x, y] == '\0') { mark[x, y] = true; return 1; }
             if (board[x, y] != clr) { mark[x, y] = true; return 0; }
             mark[x, y] = true;
             if (x == 0 && y == 0)
@@ -160,12 +164,12 @@ namespace BlackClover
         public (List<GUIAction>, State) GetSuccessor(Action action)
         {
             int newTurn = (1 + Turn) % 2;
-            int prisoners0 = 0, prisoners1 = 0;
-            char[,] board = new char[19,19];
+            int prisoners0 = this.GetPrisonersB(), prisoners1 = this.GetPrisonersW();
+            char[,] board = new char[19, 19];
 
             int x, y;
-            x = action.getX();
-            y = action.getY();
+            x = action.GetX();
+            y = action.GetY();
 
             Array.Copy(Board, board, 361);
             List<GUIAction> guiActions = new List<GUIAction>();
@@ -199,17 +203,17 @@ namespace BlackClover
             }
 
             int passes = 0;
-            if(action.getY() == -1 && action.getX() == -1)
+            if(action.GetY() == -1 && action.GetX() == -1)
             {
                 passes = consecutivePasses + 1;
             }
-
+            Board[x, y] = '\0';
             return (guiActions, new State(newTurn, prisoners0, prisoners1, passes, board));
         }
 
         public bool IsTerminal()
         {
-            if(consecutivePasses > 1 || Action.PossibleActions(this).Count == 0)
+            if (consecutivePasses > 1 || Action.PossibleActions(this).Count == 0)
             {
                 return true;
             }
@@ -224,6 +228,29 @@ namespace BlackClover
         public static char MapPiece(int piece)
         {
             return piece == 1 ? 'W' : (piece == 0 ? 'B' : '\0');
+        }
+
+        public int Evaluate(int turn)
+        {
+            int blackCount = 0, whiteCount = 0;
+            for (int i = 0; i < 19; i++)
+            {
+                for (int j = 0; j < 19; j++)
+                {
+                    if(Board[i, j] == 'B')
+                    {
+                        blackCount++;
+                    } else if (Board[i, j] == 'W')
+                    {
+                        whiteCount++;
+                    }
+                }
+            }
+            if (turn == 0)
+            {
+                return blackCount - whiteCount;
+            }
+            return whiteCount - blackCount;
         }
     }
 }

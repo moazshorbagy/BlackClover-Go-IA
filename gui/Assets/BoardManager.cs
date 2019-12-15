@@ -11,11 +11,9 @@ namespace Board
 
     public class BoardManager : MonoBehaviour
     {
-        private const int NumberOfTiles=19;
-        private int BlackStoneScore=0;
-        private int WhiteStoneScore=0;
-        private bool BlackTurn;
-        private bool StoneAdded=false;
+        private int BlackStoneScore;
+        private int WhiteStoneScore;
+        private bool StoneAdded;
         private bool AgentvsAgent;
         public Text BlackStoneText;
         public Text WhiteStoneText;
@@ -26,6 +24,10 @@ namespace Board
         List<(int, Vector2)> sharedSpawnStones;
         List<Vector2> sharedRemoveStones;
         List<State> sharedState;
+        List<BlackClover.Action> myAction;
+        List<BlackClover.Action> opAction;
+        List<bool> isMyTurn;
+        List<string> myClr;
     /*this Function takes an index which indicates which stone to spawn, index is 0 for black stones and 1 for white stones
       it's second parameter is the position to spawn the stone at position should range from 0 to 18 in x and y directions.
     */
@@ -83,7 +85,7 @@ namespace Board
                 Destroy(SpawnedStones[position]);
                 SpawnedStones.Remove(position);
             }
-            catch (KeyNotFoundException e)
+            catch (KeyNotFoundException)
             {
                 deleted = false;  
             }
@@ -93,26 +95,69 @@ namespace Board
         // Start is called before the first frame update
         void Start()
         {
-            BlackTurn=true;
-            AgentvsAgent=false;
+            AgentvsAgent=true;
             sharedState = new List<State>();
-            sharedState.Add(new State(0, new char[19,19]));
+            sharedSpawnStones = new List<(int, Vector2)>();
+            sharedRemoveStones = new List<Vector2>();
+            opAction = new List<BlackClover.Action>();
+            isMyTurn = new List<bool>();
+            myClr = new List<string>();
+            myAction = new List<BlackClover.Action>();
+            if(!AgentvsAgent)
+            {
+                char[,] board = new char[19, 19];
+                for (int i = 0; i < 7; i++)
+                {
+                    board[i, 0] = 'W';
+                    board[i, 2] = 'W';
+                    SpawnStones(1, new Vector2(i, 18 - 0));
+                    SpawnStones(1, new Vector2(i, 18 - 2));
+                    board[i, 1] = 'B';
+                    SpawnStones(0, new Vector2(i, 18 - 1));
+
+                }
+                myClr.Add("W");
+                sharedState.Add(new State(1, board));
+                if (myClr[0][0] == 'W')
+                {
+                    isMyTurn.Add(true);
+                }
+                else
+                {
+                    isMyTurn.Add(false);
+                }
+            }
             Thread agentThread = new Thread(new ThreadStart(StartAgent));
             agentThread.Start();
-           
+            if (AgentvsAgent)
+            {
+                Thread clientThread = new Thread(new ThreadStart(StartClient));
+                clientThread.Start();
+            }
         }
 
         void StartAgent()
         {
-            
-            sharedSpawnStones = new List<(int, Vector2)>();
-            sharedRemoveStones = new List<Vector2>();
-            BlackCloverAgent agent = new BlackCloverAgent(sharedSpawnStones, sharedRemoveStones, sharedState, 1);
-            while(true)
+            Debug.Log("Starting agent");
+            BlackCloverAgent agent = new BlackCloverAgent(sharedSpawnStones, sharedRemoveStones, sharedState, 1, myAction);
+            char[,] Board = new char[19, 19];
+            while (myClr.Count == 0)
             {
-                if(sharedState[0].GetTurn() == 1)
+
+            }
+            char clr = myClr[0][0];
+            lock (myClr)
+            {
+                myClr.RemoveAt(0);
+            }
+            sharedState.Add(new State(1, Board));
+            while (true)
+            {
+                if (this.isMyTurn.Count == 0)
                 {
-                    agent.GetNextMove(sharedState[0]);
+                    Debug.Log("waiting for the move");
+                    agent.GetNextMove();
+                    Debug.Log("added move");
                     Debug.Log("agent waiting for his turn..");
                     Score score = new Score();
                     char[,] boardcopy = new char[19, 19];
@@ -120,7 +165,54 @@ namespace Board
                     int[] scores = score.getScore(sharedState[0].GetPrisonersB(), sharedState[0].GetPrisonersW(), boardcopy);
                     SetBlackScore(scores[0]);
                     SetWhiteScore(scores[1]);
+                    lock(this.isMyTurn)
+                    {
+                        this.isMyTurn.RemoveAt(0);
+                    }
                 }
+            }
+        }
+
+        void StartClient()
+        {
+            //TODO: add the color
+            Client client = new Client(myClr, opAction, myAction, isMyTurn);
+            client.Start();
+            while(true)
+            {
+                if(!isMyTurn[0])
+                {
+                    while(opAction.Count == 0)
+                    {
+
+                    }
+                    List<GUIAction> guiActions;
+                    BlackClover.Action action = opAction[0];
+                    lock (opAction)
+                    {
+                        opAction.RemoveAt(0);
+                    }
+                    (guiActions, sharedState[0]) = sharedState[0].GetSuccessor(action);
+                    foreach (GUIAction guiAction in guiActions)
+                    {
+                        if(guiAction.isAddition)
+                        {
+                            lock(sharedSpawnStones)
+                            {
+                                int turn = myClr[0] == "B" ? 1 : 0;
+                                sharedSpawnStones.Add((turn, guiAction.position));
+                            }
+                        }
+                        else
+                        {
+                            lock (sharedRemoveStones)
+                            {
+                                sharedRemoveStones.Add(guiAction.position);
+                                Debug.Log("Removed stone");
+                            }
+                        }
+                    }
+                }            
             }
         }
 
@@ -139,6 +231,11 @@ namespace Board
 
         void GetUserActions()
         {
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                Debug.Log("Your Turn is passed ");
+            }
+
             if (Input.GetMouseButtonDown(0))
             {
                 Vector3 mousePosition = Input.mousePosition;
@@ -149,43 +246,53 @@ namespace Board
                 int xPos = (int)Math.Round((mouseWorldPosition.x/1.2)-1);
                 int yPos = (int)Math.Round((mouseWorldPosition.z/1.2)-1);
 
-        
+            
                 Vector2 spawningPosition = new Vector2(xPos,yPos);
 
+                BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, 'B');
+                
+                List<BlackClover.Action> possibleActions = BlackClover.Action.PossibleActions(sharedState[0]);
+
+                if (possibleActions.FindIndex(((x) => { return x.GetX() == action.GetX() && x.GetY() == x.GetY(); })) == -1)
+                {
+                    return;
+                }
+
                 SpawnStones(0, spawningPosition);
-                BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, "BLACK");
-                List<GUIAction> guiActions;
-                lock (sharedState)
-                {
-                    (guiActions, sharedState[0]) = sharedState[0].GetSuccessor(action);
-                }
-                foreach (GUIAction guiAction in guiActions)
-                {
-                    if(!guiAction.isAddition)
-                    {
-                        lock (sharedRemoveStones)
-                        {
-                            sharedRemoveStones.Add(guiAction.position);
-                            Debug.Log("Removed stone");
-                        }
-                    }
-                }
                 if (StoneAdded)
                 {
-                    BlackTurn=false;
+                    //BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, 'B');
+                    List<GUIAction> guiActions;
+                    lock (sharedState)
+                    {
+                        (guiActions, sharedState[0]) = sharedState[0].GetSuccessor(action);
+                    }
+
+                    foreach (GUIAction guiAction in guiActions)
+                    {
+                        if (!guiAction.isAddition)
+                        {
+                            lock (sharedRemoveStones)
+                            {
+                                sharedRemoveStones.Add(guiAction.position);
+                                Debug.Log("Removed stone");
+                            }
+                        }
+
+                    }
                     Score score = new Score();
                     char[,] boardcopy = new char[19, 19];
                     Array.Copy(sharedState[0].GetBoard(), boardcopy, 361);
                     int[] scores = score.getScore(sharedState[0].GetPrisonersB(), sharedState[0].GetPrisonersW(), boardcopy);
                     SetBlackScore(scores[0]);
                     SetWhiteScore(scores[1]);
+                    lock(this.isMyTurn)
+                    {
+                        this.isMyTurn[0] = true;
+                    }
                 }
             }
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                 BlackTurn=false; 
-                 Debug.Log("Your Turn is passed " );
-            }   
+             
         
 
 
@@ -229,40 +336,35 @@ namespace Board
                 //        }
                 //    }
                 //}
-                if(sharedState[0].GetTurn() == 0)
+                if(!isMyTurn[0])
                 {
                     GetUserActions();
                 }
-                lock (sharedSpawnStones)
-                {
-                    for (int i = sharedSpawnStones.Count - 1; i >= 0; i--)
-                    {
-                        Vector2 position = sharedSpawnStones[i].Item2;
-                        position[1] = 18 - position[1];
-                        SpawnStones(sharedSpawnStones[i].Item1, position);
-                        sharedSpawnStones.RemoveAt(i);
-                        Debug.Log("Added stone to board");
-                    }
-                }
-
-                lock(sharedRemoveStones)
-                {
-                    for (int i = sharedRemoveStones.Count - 1; i >= 0; i--)
-                    {
-                        Vector2 position = sharedRemoveStones[i];
-                        position[1] = 18 - position[1];
-                        RemoveStones(position);
-                        sharedRemoveStones.RemoveAt(i);
-                        Debug.Log("removed stone from board");
-                    }
-                }
             }
-            else
+            lock (sharedSpawnStones)
             {
-                  SpawnStones(0,GenerateRandomPosition());
-                  SpawnStones(1,GenerateRandomPosition());
+                for (int i = sharedSpawnStones.Count - 1; i >= 0; i--)
+                {
+                    Vector2 position = sharedSpawnStones[i].Item2;
+                    position[1] = 18 - position[1];
+                    SpawnStones(sharedSpawnStones[i].Item1, position);
+                    sharedSpawnStones.RemoveAt(i);
+                    Debug.Log("Added stone to board");
+                }
             }
-    
+
+            lock (sharedRemoveStones)
+            {
+                for (int i = sharedRemoveStones.Count - 1; i >= 0; i--)
+                {
+                    Vector2 position = sharedRemoveStones[i];
+                    position[1] = 18 - position[1];
+                    RemoveStones(position);
+                    sharedRemoveStones.RemoveAt(i);
+                    Debug.Log("removed stone from board");
+                }
+            }
+
         }
     }
 }

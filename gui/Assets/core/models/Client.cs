@@ -6,21 +6,22 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace BlackClover
 {
+
     public class Client
     {
         private WebSocket ws;
         //string tosend;
         //private string serverIp = "ws://echo.websocket.org";
-        private string serverIp = "ws://localhost:8080";
-        private string myname = "\"yasminaa\"";
+        private string serverIp = "ws://192.168.43.76:8080";
+        private string myname = "\"BlackClover\"";
         string opmovrow;
         string opmovcol;
-        string mymovrow;
-        string mymovcol;
-        bool myturn;
+        int mymovrow;
+        int mymovcol;
         string turnnow;
         string mycolor;
         string winner;
@@ -30,20 +31,33 @@ namespace BlackClover
         string myremainingtime;
         string opscore;
         string opremainingtime;
-        int prisoners;
+        int myprisoners;
+        int opprisoners;
+        string opcolor;
+        bool myturn;
 
         JObject opactionobject;
         //char[,] board = { { ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},{ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."} };
         //char[,] board;
         char[,] board = { { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' } };
-        int turn = 0; //set initially as black, changes from turnnow
+       
         State gamestate = new State(0, new char[,] { { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' }, { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' } }); 
-        Action opaction;
-        List<Action> sharedOpAction; //to be replaced with shared action list
-
+        
+        List<Action> OpAction; //to be replaced with shared action list
+        List<string> myColor;
+        List<Action> myAction;
+        List<bool> turn;
 
         ClientState state = ClientState.INIT;
-        
+
+      public  Client(List<string> myColor, List<Action> OpAction, List<Action> myAction, List<bool> turn)
+        {
+            this.myColor = myColor;
+            this.myAction = myAction;
+            this.OpAction = OpAction;
+            this.turn = turn;
+        }
+
         enum ClientState
         {
             INIT,
@@ -80,8 +94,48 @@ namespace BlackClover
         }
 
 
+        (int, int) GetMyAction()
+        {
+            lock (this.turn)
+            {
+                this.turn[0] = true;
+            }
 
-        private void OnMessageHandler(object sender, MessageEventArgs e)
+            Action action;
+            while (this.myAction.Count == 0)
+            {
+             
+            }
+            lock (this.myAction)
+            {
+                action = this.myAction[0];
+                this.myAction.RemoveAt(0);
+
+            }
+            return (action.GetX(), action.GetY());
+        }
+
+        void SetOpAction(int X, int Y, string c)
+        {
+            lock (this.turn)
+            {
+                this.turn.Add(true);
+            }
+
+            Action action;
+            
+            lock (this.OpAction)
+            {
+                action = new Action(X, Y, char.Parse(c));
+                this.OpAction.Add(action);
+
+            }
+
+            
+        }
+
+
+        private void OnMessageHandlerAsync(object sender, MessageEventArgs e)
         {
             if (e.IsText)
             {
@@ -111,7 +165,7 @@ namespace BlackClover
                      */
 
 
-                    if (mycolor == "B")
+                    if (string.Compare(mycolor, "B") == 0)
                     {
                         JObject playersobj = JObject.Parse(o["players"].ToString());
                         JObject player1obj = JObject.Parse(playersobj["B"].ToString());
@@ -152,7 +206,7 @@ namespace BlackClover
                 }
                 else if (string.Compare(o["type"].ToString(), "START") == 0)
                 {
-
+                    //Thread.Sleep(20000);
 
 
                     if (state == ClientState.READY)
@@ -168,12 +222,50 @@ namespace BlackClover
 
                         turnnow = initstatobj["turn"].ToString();
                         mycolor = o["color"].ToString();
+
+                        JObject playersobj = JObject.Parse(initstatobj["players"].ToString());
+                        JObject player1obj = JObject.Parse(playersobj["B"].ToString());
+                        JObject player2obj = JObject.Parse(playersobj["W"].ToString());
+
+                        if (string.Compare(mycolor, "B") == 0)
+                        {
+                            myremainingtime = player1obj["remainingTime"].ToString();
+                            myprisoners = Int32.Parse(player1obj["prisoners"].ToString());
+                            opremainingtime = player2obj["remainingTime"].ToString();
+                            opprisoners = Int32.Parse(player2obj["prisoners"].ToString());
+
+                        }
+
+                        else
+                        {
+                            myremainingtime = player2obj["remainingTime"].ToString();
+                            myprisoners = Int32.Parse(player2obj["prisoners"].ToString());
+                            opremainingtime = player1obj["remainingTime"].ToString();
+                            opprisoners = Int32.Parse(player1obj["prisoners"].ToString());
+                        }
+
+                        lock (this.myColor)
+                        {
+                            this.myColor.Add(mycolor); 
+                        }
+
                         if (movloglength % 2 == 0)//even 
                         {
                             if (string.Compare(turnnow, mycolor) == 0)
                             {
                                 myturn = true;
                                 state = ClientState.THINKING;
+
+                                
+
+                                ( mymovrow,mymovcol) = GetMyAction();
+
+                                if (mymovcol == -1 && mymovrow == -1)
+                                {
+                                    ws.SendAsync(sendmovpass, OnSendComplete);
+                                }
+                                else
+                                { ws.SendAsync(sendmovplace, OnSendComplete); }
 
                                 /* 
                                    ******************
@@ -195,9 +287,20 @@ namespace BlackClover
                         else //odd
                         {
                             if (string.Compare(turnnow, mycolor) != 0)
-                            {
+                            { 
                                 myturn = true;
                                 state = ClientState.THINKING;
+                                (mymovrow, mymovcol) = GetMyAction();
+
+                                if (mymovcol == -1 && mymovrow == -1)
+                                {
+                                    ws.SendAsync(sendmovpass, OnSendComplete);
+                                }
+                                else
+                                { ws.SendAsync(sendmovplace, OnSendComplete); }
+
+
+
                             }
                             else
                             {
@@ -224,7 +327,14 @@ namespace BlackClover
                 else if (string.Compare(o["type"].ToString(), "MOVE") == 0)
                 {
                     state = ClientState.THINKING;
+                    //myturn = true;
                     JObject movobj = JObject.Parse(o["move"].ToString());
+
+                    if (string.Compare(mycolor, "B") == 0)
+                        opcolor = "W";
+                    else
+                        opcolor = "B";
+
                     if (string.Compare(movobj["type"].ToString(), "pass") == 0)
                     {
                         Console.WriteLine("el move no3ha pass");
@@ -233,16 +343,9 @@ namespace BlackClover
                            * NOTIFY THE AGENT THAT THE OPPNENT MADE A PASS MOVE
                            * ****************
                         */
+                        //
 
-                        string opcolor;
-                        if (mycolor == "B")
-                            opcolor = "W";
-                        else
-                            opcolor = "B";
-                        opaction = new Action(-1, -1, opcolor);
-                        sharedOpAction.Add(opaction);
-                        string recievemovpass =  "{\"type\":\"MOVE\",\"move\": {\"type\":\"pass\"} }";
-                        opactionobject = JObject.Parse(recievemovpass);
+                        SetOpAction(-1, -1, opcolor);
                     }
 
                     else if (string.Compare(movobj["type"].ToString(), "resign") == 0)
@@ -256,8 +359,7 @@ namespace BlackClover
                     else if (string.Compare(movobj["type"].ToString(), "place") == 0)
                     {
 
-                        if (string.Compare(movobj["type"].ToString(), "place") == 0)
-                        {   /* 
+                        /* 
                            ******************
                            * NOTIFY THE AGENT THAT THE OPPNENT MADE A PLACE MOVE
                            * ****************
@@ -269,26 +371,21 @@ namespace BlackClover
                             opmovrow = pointobj["row"].ToString();
                             opmovcol = pointobj["column"].ToString();
 
-                            string opcolor;
-                            if (mycolor == "B")
-                                opcolor = "W";
-                            else
-                                opcolor = "B";
-                            opaction =new Action(Int32.Parse(opmovrow), Int32.Parse(opmovcol), opcolor);
-                            sharedOpAction.Add(opaction);
-                            string recievemovplace = "{\"type\":\"MOVE\",\"move\": {\"type\":\"place\",\"point\":{\"row\":" + opmovrow + ",\"column\":"+ opmovcol +"}}} }";
-                            opactionobject = JObject.Parse(recievemovplace);
-                        }
+                            SetOpAction(Int32.Parse(opmovrow), Int32.Parse(opmovcol), opcolor);
+
 
 
 
                     }
 
-                    
+                    (mymovrow, mymovcol) = GetMyAction();
 
-
-
-
+                    if (mymovcol == -1 && mymovrow == -1)
+                    {
+                        ws.SendAsync(sendmovpass, OnSendComplete);
+                    }
+                    else
+                    { ws.SendAsync(sendmovplace, OnSendComplete); }
 
 
                 }
@@ -331,18 +428,10 @@ namespace BlackClover
             ws = new WebSocket(serverIp);
             state = ClientState.INIT;
 
-            if (turnnow == "B")
-            {
-                turn = 0;
-            }
-            else
-            {
-                turn = 1;
-            }
-
+            
             ws.EmitOnPing = true;
             ws.OnOpen += OnOpenHandler;
-            ws.OnMessage += OnMessageHandler;
+            ws.OnMessage += OnMessageHandlerAsync;
             ws.OnError += OnErrorHandler;
             ws.OnClose += OnCloseHandler;
 

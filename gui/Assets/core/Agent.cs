@@ -9,22 +9,30 @@ namespace BlackClover
         private List<Vector2> sharedRemoveStones; 
         private readonly int turn;
         private List<State> sharedState;
-        public BlackCloverAgent(List<(int, Vector2)> sharedSpawnStones, List<Vector2> sharedRemoveStones, List<State> sharedState, int turn)
+        private List<Action> myAction;
+        private MCTS search;
+        public BlackCloverAgent(List<(int, Vector2)> sharedSpawnStones, List<Vector2> sharedRemoveStones, List<State> sharedState, int turn, List<Action> myAction)
         {
             this.sharedRemoveStones = sharedRemoveStones;
             this.sharedSpawnStones = sharedSpawnStones;
             this.sharedState = sharedState;
+            this.myAction = myAction;
             this.turn = turn;
         }
 
-        public void GetNextMove(State state)
+        public void GetNextMove()
         {
-            MCTS search = new MCTS(state);
+            search = new MCTS(sharedState[0]);
+            //search.OponentPlay(sharedState[0]);
             Action action = search.Play();
+            lock(myAction)
+            {
+                myAction.Add(action);
+            }
             List<GUIAction> guiActions;
             lock(this.sharedState)
             {
-                (guiActions, sharedState[0]) = state.GetSuccessor(action);
+                (guiActions, sharedState[0]) = sharedState[0].GetSuccessor(action);
              
             }
             foreach(GUIAction guiAction in guiActions)

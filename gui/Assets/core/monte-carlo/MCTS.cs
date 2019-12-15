@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,10 +22,10 @@ namespace BlackClover
         /// <param name="initialState">The initial state of the game.</param>
         public MCTS(State initialState)
         {
-            this.initialState = new State(initialState);
+            this.initialState = initialState;
             tree = new DAG(this.initialState);
-            limit = 100;
-            depthLimit = 20;
+            limit = 500;
+            depthLimit = 25;
             random = new Random();
         }
 
@@ -38,15 +39,16 @@ namespace BlackClover
 
             Node currentNode;
 
-            while (time < limit) 
+            while (time < limit)
             {
                 currentNode = tree.root; // the first selection is the actual current state of the game
-
+                
                 while (currentNode.hasChildNodes) // if true then it is not a leaf node
                 {
                     // Selection
                     currentNode = Select(currentNode);
                 }
+                
                 if (currentNode.numberOfSimulations != 0)
                 {
                     // Expansion
@@ -55,7 +57,7 @@ namespace BlackClover
                 }
                 // Simulation
                 int value = Simulate(currentNode);
-
+                
                 // Backpropagation
                 BackPropagate(currentNode, value);
 
@@ -69,7 +71,7 @@ namespace BlackClover
 
             for (int i = 1; i < tree.root.children.Count; i++)
             {
-                if(tree.root.children[i].currentValue > maxCurrentValue)
+                if (tree.root.children[i].currentValue > maxCurrentValue)
                 {
                     secondMaxIndex = index;
                     maxCurrentValue = tree.root.children[i].currentValue;
@@ -93,6 +95,37 @@ namespace BlackClover
             return tree.root.action;
         }
 
+        public bool OponentPlay(State state)
+        {
+            bool stateFound = false;
+            for (int k = 0; k < tree.root.children.Count; k++)
+            {
+                stateFound = true;
+                for (int i = 0; i < 19; i++)
+                {
+                    if(!stateFound)
+                    {
+                        break;
+                    }
+                    for (int j = 0; j < 19; j++)
+                    {
+                        if(state.GetBoard()[i, j] != tree.root.children[k].state.GetBoard()[i, j])
+                        {
+                            stateFound = false;
+                            break;
+                        }
+                    }
+                }
+                if(stateFound)
+                {
+                    tree.root = tree.root.children[k]; // modifying the root
+                    tree.root.parents.Clear(); // cutting the rest of the tree
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// Implements the Tree Policy.
         /// Chooses the node (coming from the action) that maximizes Q + U.
@@ -106,12 +139,12 @@ namespace BlackClover
 
             for (int i = 0; i < node.children.Count; i++)
             {
-                if(node.children[i].numberOfSimulations == 0)
+                if (node.children[i].numberOfSimulations == 0)
                 {
                     return node.children[i];
                 }
                 currUCB = CalculateUCB(node.children[i]);
-                if(currUCB > maxUCB)
+                if (currUCB > maxUCB)
                 {
                     maxUCB = currUCB;
                     index = i;
@@ -126,7 +159,7 @@ namespace BlackClover
         /// </summary>
         private float CalculateUCB(Node node)
         {
-            return node.currentValue / node.numberOfSimulations + (float) (2 * Math.Sqrt(Math.Log(node.parents[0].numberOfSimulations) / node.numberOfSimulations));
+            return node.currentValue / node.numberOfSimulations + (float)(2 * Math.Sqrt(Math.Log(node.parents[0].numberOfSimulations) / node.numberOfSimulations));
         }
 
         /// <summary>
@@ -156,13 +189,13 @@ namespace BlackClover
             List<Action> actions;
             List<GUIAction> _;
             int count = 0;
-            while (count < depthLimit)  // use IsTerminal
+            while (count < depthLimit && !state.IsTerminal())
             {
                 count++;
                 actions = Action.PossibleActions(state);
                 (_, state) = state.GetSuccessor(actions[random.Next(actions.Count)]);
             }
-            return random.Next(2); //problem.GetWinner(state);
+            return state.Evaluate(1); //problem.GetWinner(state);
         }
 
         /// <summary>
@@ -172,7 +205,7 @@ namespace BlackClover
         private void BackPropagate(Node node, int value)
         {
             tree.totalNumberOfSimulations += 1;
-            if(node == tree.root)
+            if (node == tree.root)
             {
                 node.numberOfSimulations++;
                 node.currentValue += value;
