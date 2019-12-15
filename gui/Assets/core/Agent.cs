@@ -25,6 +25,7 @@ namespace BlackClover
             search = new MCTS(sharedState[0]);
             //search.OponentPlay(sharedState[0]);
             Action action = search.Play();
+            Debug.Log("MCTS generated: " + action.GetX() + " " + action.GetClr());
             lock(myAction)
             {
                 myAction.Add(action);

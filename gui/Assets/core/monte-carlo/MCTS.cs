@@ -24,7 +24,7 @@ namespace BlackClover
         {
             this.initialState = initialState;
             tree = new DAG(this.initialState);
-            limit = 500;
+            limit = 400;
             depthLimit = 25;
             random = new Random();
         }
