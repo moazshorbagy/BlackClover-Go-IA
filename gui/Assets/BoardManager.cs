@@ -170,6 +170,39 @@ namespace Board
                         this.isMyTurn.RemoveAt(0);
                     }
                 }
+                else
+                {
+                    if(opAction.Count == 0)
+                    {
+                        List<GUIAction> guiActions;
+                        BlackClover.Action action = opAction[0];
+                        opAction.RemoveAt(0);
+                        lock (opAction)
+                        {
+                            opAction.RemoveAt(0);
+                        }
+                        (guiActions, sharedState[0]) = sharedState[0].GetSuccessor(action);
+                        foreach (GUIAction guiAction in guiActions)
+                        {
+                            if (guiAction.isAddition)
+                            {
+                                lock (sharedSpawnStones)
+                                {
+                                    int turn = myClr[0] == "B" ? 1 : 0;
+                                    sharedSpawnStones.Add((turn, guiAction.position));
+                                }
+                            }
+                            else
+                            {
+                                lock (sharedRemoveStones)
+                                {
+                                    sharedRemoveStones.Add(guiAction.position);
+                                    Debug.Log("Removed stone");
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -178,42 +211,6 @@ namespace Board
             //TODO: add the color
             Client client = new Client(myClr, opAction, myAction, isMyTurn);
             client.Start();
-            while(true)
-            {
-                if(!isMyTurn[0])
-                {
-                    while(opAction.Count == 0)
-                    {
-
-                    }
-                    List<GUIAction> guiActions;
-                    BlackClover.Action action = opAction[0];
-                    lock (opAction)
-                    {
-                        opAction.RemoveAt(0);
-                    }
-                    (guiActions, sharedState[0]) = sharedState[0].GetSuccessor(action);
-                    foreach (GUIAction guiAction in guiActions)
-                    {
-                        if(guiAction.isAddition)
-                        {
-                            lock(sharedSpawnStones)
-                            {
-                                int turn = myClr[0] == "B" ? 1 : 0;
-                                sharedSpawnStones.Add((turn, guiAction.position));
-                            }
-                        }
-                        else
-                        {
-                            lock (sharedRemoveStones)
-                            {
-                                sharedRemoveStones.Add(guiAction.position);
-                                Debug.Log("Removed stone");
-                            }
-                        }
-                    }
-                }            
-            }
         }
 
         Vector2 GenerateRandomPosition()
@@ -288,7 +285,7 @@ namespace Board
                     SetWhiteScore(scores[1]);
                     lock(this.isMyTurn)
                     {
-                        this.isMyTurn[0] = true;
+                        this.isMyTurn.Add(true);
                     }
                 }
             }
