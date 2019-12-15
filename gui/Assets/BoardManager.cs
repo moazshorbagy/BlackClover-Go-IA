@@ -103,12 +103,6 @@ namespace Board
             isMyTurn = new List<bool>();
             myClr = new List<string>();
             myAction = new List<BlackClover.Action>();
-
-            if(AgentvsAgent)
-            {
-                Thread clientThread = new Thread(new ThreadStart(StartClient));
-                clientThread.Start();
-            }
             if(!AgentvsAgent)
             {
                 char[,] board = new char[19, 19];
@@ -135,17 +129,35 @@ namespace Board
             }
             Thread agentThread = new Thread(new ThreadStart(StartAgent));
             agentThread.Start();
+            if (AgentvsAgent)
+            {
+                Thread clientThread = new Thread(new ThreadStart(StartClient));
+                clientThread.Start();
+            }
         }
 
         void StartAgent()
         {
-           
+            Debug.Log("Starting agent");
             BlackCloverAgent agent = new BlackCloverAgent(sharedSpawnStones, sharedRemoveStones, sharedState, 1, myAction);
-            while(true)
+            char[,] Board = new char[19, 19];
+            while (myClr.Count == 0)
             {
-                if(this.isMyTurn[0])
+
+            }
+            char clr = myClr[0][0];
+            lock (myClr)
+            {
+                myClr.RemoveAt(0);
+            }
+            sharedState.Add(new State(1, Board));
+            while (true)
+            {
+                if (this.isMyTurn.Count == 0)
                 {
+                    Debug.Log("waiting for the move");
                     agent.GetNextMove();
+                    Debug.Log("added move");
                     Debug.Log("agent waiting for his turn..");
                     Score score = new Score();
                     char[,] boardcopy = new char[19, 19];
@@ -155,7 +167,7 @@ namespace Board
                     SetWhiteScore(scores[1]);
                     lock(this.isMyTurn)
                     {
-                        this.isMyTurn[0] = false;
+                        this.isMyTurn.RemoveAt(0);
                     }
                 }
             }
