@@ -163,14 +163,15 @@ namespace BlackClover
 
         public (List<GUIAction>, State) GetSuccessor(Action action)
         {
-            int newTurn = (1 + Turn) % 2;
+            //int newTurn = 1 - Turn;
+            int newTurn = action.GetClr() == 'W' ? 0 : 1;
             int prisoners0 = this.GetPrisonersB(), prisoners1 = this.GetPrisonersW();
             char[,] board = new char[19, 19];
 
             int x, y;
             x = action.GetX();
             y = action.GetY();
-
+            Turn = (1 - newTurn);
             Array.Copy(Board, board, 361);
             List<GUIAction> guiActions = new List<GUIAction>();
             guiActions.Add(new GUIAction(x, y, true, Turn));
