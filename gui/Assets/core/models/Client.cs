@@ -142,7 +142,6 @@ namespace BlackClover
 
 
                 /////to send still dont know when   
-                string sendmovplace = "{\"type\":\"MOVE\",\"move\":{\"type\":\"place\",\"point\":{\"row\":" + mymovrow + ",\"column\":" + mymovcol + "}}}";
                 string sendmovpass = "{\"type\":\"MOVE\",\"move\":{\"type\":\"pass\"}}";
                 string sendmovresign = "{\"type\":\"MOVE\",\"move\":{\"type\":\"resign\"}}";
                 //////
@@ -256,7 +255,7 @@ namespace BlackClover
                                 
 
                                 ( mymovrow,mymovcol) = GetMyAction();
-
+                                string sendmovplace = "{\"type\":\"MOVE\",\"move\":{\"type\":\"place\",\"point\":{\"row\":" + mymovrow + ",\"column\":" + mymovcol + "}}}";
                                 if (mymovcol == -1 && mymovrow == -1)
                                 {
                                     ws.SendAsync(sendmovpass, OnSendComplete);
@@ -288,11 +287,12 @@ namespace BlackClover
                                 myturn = true;
                                 state = ClientState.THINKING;
                                 (mymovrow, mymovcol) = GetMyAction();
-
+                                string sendmovplace = "{\"type\":\"MOVE\",\"move\":{\"type\":\"place\",\"point\":{\"row\":" + mymovrow + ",\"column\":" + mymovcol + "}}}";
                                 if (mymovcol == -1 && mymovrow == -1)
                                 {
                                     ws.SendAsync(sendmovpass, OnSendComplete);
                                 }
+                          
                                 else
                                 { ws.SendAsync(sendmovplace, OnSendComplete); }
 
@@ -374,7 +374,7 @@ namespace BlackClover
                     }
 
                     (mymovrow, mymovcol) = GetMyAction();
-
+                    string sendmovplace = "{\"type\":\"MOVE\",\"move\":{\"type\":\"place\",\"point\":{\"row\":" + mymovrow + ",\"column\":" + mymovcol + "}}}";
                     if (mymovcol == -1 && mymovrow == -1)
                     {
                         ws.SendAsync(sendmovpass, OnSendComplete);
