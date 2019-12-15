@@ -44,7 +44,20 @@ namespace BlackClover
                         WhiteStones++;
                     }
                     char outer = ' ';
-                    if (state[row, col] == ' ' && Visited[row, col] != true)
+                    bool z = false;
+                    if (col - 1 >= 0 && row - 1 >= 0)
+                    {
+                        if (state[row, col - 1] != ' ' && state[row - 1, col] != ' ')
+                        {
+                            z = true;
+                        }
+                    }
+                    else if (col - 1 < 0 || row - 1 < 0)
+                    {
+                        z = true;
+                    }
+
+                    if (state[row, col] == ' ' && Visited[row, col] != true && z == true)
                     {
                         bool pointouter = false;
                         int posx = row;
@@ -585,10 +598,9 @@ namespace BlackClover
                 Console.WriteLine("Black territories");
                 Console.WriteLine(Bterritory);
 
-                Console.WriteLine(listW.Count);
                 for (int i = 0; i < listW.Count; i++)
                 {
-                    Console.WriteLine(listW[i]);
+
                     RegionFillingW(listW[i], '0', '2');
                 }
                 Console.WriteLine("White territories");
