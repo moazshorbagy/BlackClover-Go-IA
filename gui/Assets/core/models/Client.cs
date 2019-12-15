@@ -94,14 +94,14 @@ namespace BlackClover
 
         }
 
-
+        int xx = 1;
         (int, int) GetMyAction()
         {
             lock (this.turn)
             {
                 this.turn.Add(true);
             }
-
+            return (xx++, xx++);
             Action action;
             while (this.myAction.Count == 0)
             {
@@ -423,7 +423,7 @@ namespace BlackClover
             ws = new WebSocket(serverIp);
             state = ClientState.INIT;
 
-            
+
             ws.EmitOnPing = true;
             ws.OnOpen += OnOpenHandler;
             ws.OnMessage += OnMessageHandlerAsync;
