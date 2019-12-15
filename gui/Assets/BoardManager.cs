@@ -150,10 +150,11 @@ namespace Board
             {
                 myClr.RemoveAt(0);
             }
-            sharedState.Add(new State(1, Board));
+            int turn = clr == 'W' ? 1 : 0;
+            sharedState.Add(new State(turn, Board));
             while (true)
             {
-                if (this.isMyTurn.Count == 0)
+                if (this.isMyTurn.Count != 0)
                 {
                     Debug.Log("waiting for the move");
                     agent.GetNextMove();
@@ -172,7 +173,7 @@ namespace Board
                 }
                 else
                 {
-                    if(opAction.Count == 0)
+                    if(opAction.Count != 0)
                     {
                         List<GUIAction> guiActions;
                         BlackClover.Action action = opAction[0];
@@ -188,7 +189,6 @@ namespace Board
                             {
                                 lock (sharedSpawnStones)
                                 {
-                                    int turn = myClr[0] == "B" ? 1 : 0;
                                     sharedSpawnStones.Add((turn, guiAction.position));
                                 }
                             }
