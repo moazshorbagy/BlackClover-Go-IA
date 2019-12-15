@@ -171,7 +171,7 @@ namespace BlackClover
             int x, y;
             x = action.GetX();
             y = action.GetY();
-            Turn = (1 - newTurn);
+            Turn = 1 - newTurn;
             Array.Copy(Board, board, 361);
             List<GUIAction> guiActions = new List<GUIAction>();
             guiActions.Add(new GUIAction(x, y, true, Turn));
