@@ -107,8 +107,8 @@ namespace BlackClover
             {
              
             }
-            Debug.Log("server got the move");
             action = this.myAction[0];
+            Debug.Log("server got: " + action.GetX() + " " + action.GetClr());
             lock (this.myAction)
             {
                 this.myAction.RemoveAt(0);

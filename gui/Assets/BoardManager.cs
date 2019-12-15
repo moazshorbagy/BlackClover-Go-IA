@@ -159,16 +159,16 @@ namespace Board
                 if (this.isMyTurn.Count != 0)
                 {
                     agent.GetNextMove();
+                    lock (this.isMyTurn)
+                    {
+                        this.isMyTurn.RemoveAt(0);
+                    }
                     Score score = new Score();
                     char[,] boardcopy = new char[19, 19];
                     Array.Copy(sharedState[0].GetBoard(), boardcopy, 361);
                     int[] scores = score.getScore(sharedState[0].GetPrisonersB(), sharedState[0].GetPrisonersW(), boardcopy);
                     SetBlackScore(scores[0]);
                     SetWhiteScore(scores[1]);
-                    lock(this.isMyTurn)
-                    {
-                        this.isMyTurn.RemoveAt(0);
-                    }
                 }
                 else
                 {
