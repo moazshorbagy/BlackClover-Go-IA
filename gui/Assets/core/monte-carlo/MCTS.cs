@@ -24,7 +24,7 @@ namespace BlackClover
         {
             this.initialState = initialState;
             tree = new DAG(this.initialState);
-            limit = 1000;
+            limit = 500;
             depthLimit = 25;
             random = new Random();
         }
@@ -195,7 +195,7 @@ namespace BlackClover
                 actions = Action.PossibleActions(state);
                 (_, state) = state.GetSuccessor(actions[random.Next(actions.Count)]);
             }
-            return state.Evaluate(); //problem.GetWinner(state);
+            return state.Evaluate(1); //problem.GetWinner(state);
         }
 
         /// <summary>

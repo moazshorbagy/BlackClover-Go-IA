@@ -41,9 +41,9 @@ namespace BlackClover
            // Console.WriteLine("hiiiiiiii");
 
             //wssv.Start();
-            Client c1 = new Client();
+            //Client c1 = new Client();
 
-           c1.Start();
+           //c1.Start();
 
 
 

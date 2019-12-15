@@ -9,12 +9,14 @@ namespace BlackClover
         private List<Vector2> sharedRemoveStones; 
         private readonly int turn;
         private List<State> sharedState;
+        private List<Action> myAction;
         private MCTS search;
-        public BlackCloverAgent(List<(int, Vector2)> sharedSpawnStones, List<Vector2> sharedRemoveStones, List<State> sharedState, int turn)
+        public BlackCloverAgent(List<(int, Vector2)> sharedSpawnStones, List<Vector2> sharedRemoveStones, List<State> sharedState, int turn, List<Action> myAction)
         {
             this.sharedRemoveStones = sharedRemoveStones;
             this.sharedSpawnStones = sharedSpawnStones;
             this.sharedState = sharedState;
+            this.myAction = myAction;
             this.turn = turn;
         }
 
@@ -23,6 +25,10 @@ namespace BlackClover
             search = new MCTS(sharedState[0]);
             //search.OponentPlay(sharedState[0]);
             Action action = search.Play();
+            lock(myAction)
+            {
+                myAction.Add(action);
+            }
             List<GUIAction> guiActions;
             lock(this.sharedState)
             {

@@ -230,7 +230,7 @@ namespace BlackClover
             return piece == 1 ? 'W' : (piece == 0 ? 'B' : '\0');
         }
 
-        public int Evaluate()
+        public int Evaluate(int turn)
         {
             int blackCount = 0, whiteCount = 0;
             for (int i = 0; i < 19; i++)
@@ -246,7 +246,11 @@ namespace BlackClover
                     }
                 }
             }
-            return blackCount - whiteCount;
+            if (turn == 0)
+            {
+                return blackCount - whiteCount;
+            }
+            return whiteCount - blackCount;
         }
     }
 }
