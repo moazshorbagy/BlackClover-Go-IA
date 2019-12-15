@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading;
+using UnityEngine;
 
 namespace BlackClover
 {
@@ -16,8 +17,8 @@ namespace BlackClover
         private WebSocket ws;
         //string tosend;
         //private string serverIp = "ws://echo.websocket.org";
-        private string serverIp = "ws://192.168.43.76:8080";
-        private string myname = "\"BlackClover\"";
+        private string serverIp = "ws://192.168.88.221:8080";
+        private string myname = "\"Hamada\"";
         string opmovrow;
         string opmovcol;
         int mymovrow;
@@ -98,7 +99,7 @@ namespace BlackClover
         {
             lock (this.turn)
             {
-                this.turn[0] = true;
+                this.turn.Add(true);
             }
 
             Action action;
@@ -106,9 +107,10 @@ namespace BlackClover
             {
              
             }
+            Debug.Log("server got the move");
+            action = this.myAction[0];
             lock (this.myAction)
             {
-                action = this.myAction[0];
                 this.myAction.RemoveAt(0);
 
             }
@@ -117,18 +119,13 @@ namespace BlackClover
 
         void SetOpAction(int X, int Y, string c)
         {
-            lock (this.turn)
-            {
-                this.turn.Add(true);
-            }
 
-            Action action;
-            
+            Action action = new Action(X, Y, char.Parse(c));
+            Debug.Log("the action of opponent is received");
             lock (this.OpAction)
             {
-                action = new Action(X, Y, char.Parse(c));
                 this.OpAction.Add(action);
-
+                Debug.Log("The action X: " + action.GetX());
             }
 
             
@@ -370,11 +367,9 @@ namespace BlackClover
 
                             opmovrow = pointobj["row"].ToString();
                             opmovcol = pointobj["column"].ToString();
+                        Debug.Log(opcolor);
 
                             SetOpAction(Int32.Parse(opmovrow), Int32.Parse(opmovcol), opcolor);
-
-
-
 
                     }
 
