@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -417,7 +417,7 @@ RectTransform:
   m_GameObject: {fileID: 379625921}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -53.023}
-  m_LocalScale: {x: 1.813679, y: 1.8585169, z: 2.065019}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 2.065019}
   m_Children:
   - {fileID: 1402714787}
   m_Father: {fileID: 311783175}
@@ -1546,7 +1546,7 @@ RectTransform:
   m_GameObject: {fileID: 872123149}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -53.023}
-  m_LocalScale: {x: 1.8136799, y: 1.8585199, z: 2.0650198}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 2.0650198}
   m_Children:
   - {fileID: 608629165}
   m_Father: {fileID: 311783175}
@@ -2033,7 +2033,7 @@ RectTransform:
   m_GameObject: {fileID: 1301822000}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -53.023}
-  m_LocalScale: {x: 1.8136799, y: 1.8585199, z: 2.0650198}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 2.0650198}
   m_Children:
   - {fileID: 1139625952}
   - {fileID: 1508237961}
@@ -3107,7 +3107,7 @@ RectTransform:
   m_GameObject: {fileID: 1827098738}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -53.023}
-  m_LocalScale: {x: 1.8136799, y: 1.8585199, z: 2.0650198}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 2.0650198}
   m_Children:
   - {fileID: 1672479983}
   m_Father: {fileID: 311783175}
@@ -3447,7 +3447,7 @@ PrefabInstance:
     - target: {fileID: 7979293915418908998, guid: dd808c9ae8dc6104cb361186d90416b2,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 163
       objectReference: {fileID: 0}
     - target: {fileID: 7979293915418908998, guid: dd808c9ae8dc6104cb361186d90416b2,
         type: 3}
@@ -3492,7 +3492,7 @@ PrefabInstance:
     - target: {fileID: 7979293915418908998, guid: dd808c9ae8dc6104cb361186d90416b2,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 208
+      value: -162
       objectReference: {fileID: 0}
     - target: {fileID: 7979293915418908998, guid: dd808c9ae8dc6104cb361186d90416b2,
         type: 3}

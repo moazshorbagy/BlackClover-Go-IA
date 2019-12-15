@@ -95,7 +95,8 @@ namespace Board
         // Start is called before the first frame update
         void Start()
         {
-            AgentvsAgent=false;
+            AgentvsAgent=AgentManager.agentvsagent;
+            Debug.Log(AgentvsAgent);
             sharedState = new List<State>();
             sharedSpawnStones = new List<(int, Vector2)>();
             sharedRemoveStones = new List<Vector2>();
