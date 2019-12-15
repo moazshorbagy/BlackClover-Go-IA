@@ -95,7 +95,7 @@ namespace Board
         // Start is called before the first frame update
         void Start()
         {
-            AgentvsAgent=true;
+            AgentvsAgent=false;
             sharedState = new List<State>();
             sharedSpawnStones = new List<(int, Vector2)>();
             sharedRemoveStones = new List<Vector2>();
@@ -153,7 +153,7 @@ namespace Board
             int turn = clr == 'W' ? 1 : 0;
             Debug.Log("My turn " + turn);
             BlackCloverAgent agent = new BlackCloverAgent(sharedSpawnStones, sharedRemoveStones, sharedState, turn, myAction);
-            sharedState.Add(new State(turn, Board));
+            //sharedState.Add(new State(turn, Board));
             while (true)
             {
                 if (this.isMyTurn.Count != 0)
@@ -200,7 +200,7 @@ namespace Board
                             opAction.RemoveAt(0);
                         }
 
-                        lock(this.isMyTurn)
+                        lock (this.isMyTurn)
                         {
                             Debug.Log("now my turn..");
                             this.isMyTurn.Add(true);
@@ -254,7 +254,7 @@ namespace Board
                 
                 List<BlackClover.Action> possibleActions = BlackClover.Action.PossibleActions(sharedState[0]);
 
-                if (possibleActions.FindIndex(((x) => { return x.GetX() == action.GetX() && x.GetY() == x.GetY(); })) == -1)
+                if (possibleActions.FindIndex((x) => { return x.GetX() == action.GetX() && action.GetY() == x.GetY(); }) == -1)
                 {
                     return;
                 }
@@ -262,7 +262,6 @@ namespace Board
                 SpawnStones(0, spawningPosition);
                 if (StoneAdded)
                 {
-                    //BlackClover.Action action = new BlackClover.Action(xPos, 18 - yPos, 'B');
                     List<GUIAction> guiActions;
                     lock (sharedState)
                     {
@@ -293,9 +292,6 @@ namespace Board
                     }
                 }
             }
-             
-        
-
 
         }
 
@@ -318,14 +314,11 @@ namespace Board
         void Update()
         {
             UpdateScores();
-            
-            if (AgentvsAgent == false)
+            if(isMyTurn.Count == 0)
             {
-                if(!isMyTurn[0])
-                {
-                    GetUserActions();
-                }
+                GetUserActions();
             }
+
             lock (sharedSpawnStones)
             {
                 for (int i = sharedSpawnStones.Count - 1; i >= 0; i--)
